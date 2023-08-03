@@ -1,11 +1,16 @@
-﻿using MiniChatApp2.Model;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Interfaces
 {
     public interface IUserService
     {
-        Task<User> RegisterUserAsync(UserRegistrationDto model);
+       
         Task<User> GetUserByEmail(string email);
-      
+
+        Task<LoginResponseDto> LoginAsync(LoginDto model);
+
+        Task<ActionResult> RegisterUser(User user);
     }
 }
