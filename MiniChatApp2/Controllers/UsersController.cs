@@ -8,11 +8,13 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Data;
+using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Controllers
@@ -20,26 +22,21 @@ namespace MiniChatApp2.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
+
     {
+        private readonly IUserService _userService;
+
         private readonly MiniChatApp2Context _context;
         private readonly string _jwtSecretKey = "your_secret_key_here";
         private readonly IConfiguration _configuration;
-        public UsersController(MiniChatApp2Context context, IConfiguration configuration)
+        public UsersController(MiniChatApp2Context context, IConfiguration configuration, IUserService userService)
         {
             _context = context;
             _configuration = configuration;
+            _userService = userService;
         }
 
-        // GET: api/Users
-        /* [HttpGet]
-         public async Task<ActionResult<IEnumerable<User>>> GetUser()
-         {
-             if (_context.User == null)
-             {
-                 return NotFound();
-             }
-             return await _context.User.ToListAsync();
-         }*/
+      
         [HttpGet]
        public async Task<ActionResult<IEnumerable<User>>> GetUserList()
         {
@@ -117,20 +114,7 @@ namespace MiniChatApp2.Controllers
             return NoContent();
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
-        {
-            if (_context.User == null)
-            {
-                return Problem("Entity set 'MiniChatApp2Context.User'  is null.");
-            }
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
-        }
+      
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
@@ -152,114 +136,33 @@ namespace MiniChatApp2.Controllers
             return NoContent();
         }
         [HttpPost("register")]
-        public IActionResult Register(User model)
+        public async Task<ActionResult<IdentityResult>> PostUser(User user)
         {
             // Check if the model is valid
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { error = "Registration failed due to validation errors" });
             }
+         
+            return await _userService.RegisterUser(user);
 
             // Check if the email is already registered
-            if (_context.User.Any(u => u.Email == model.Email))
-            {
-                return Conflict(new { error = "Registration failed because the email is already registered" });
-            }
-            Console.WriteLine(model.Password);
-
-            // Hash the password securely before storing it in the database
-            var hashedPassword = HashPassword(model.Password);
-
-            Console.WriteLine(hashedPassword);
-
-            // Create the user object
-            var user = new User
-            {
-                Name = model.Name,
-                Email = model.Email,
-                Password = hashedPassword // Store the hashed password in the database.
-            };
-
-            // Add the user to the database using EF Core
-            _context.User.Add(user);
-            _context.SaveChanges();
-
-            // Return successful response
-            return Ok(new
-            {
-                userId = user.Id,
-                name = user.Name,
-                email = user.Email,
-                hashedPassword = hashedPassword
-            });
+          
         }
 
         [HttpPost("login")]
-        public IActionResult Login(User model)
+        public async Task<IActionResult> Login(LoginDto model)
         {
-            // Check if the model is valid
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { error = "Login failed due to validation errors" });
             }
 
-            // Find the user with the given email
-            var user = _context.User.SingleOrDefault(u => u.Email == model.Email);
+            var result = await _userService.LoginAsync(model);
 
-            // Check if the user exists and the password matches
-            if (user == null || !VerifyPassword(model.Password, user.Password))
-            {
-                return Unauthorized(new { error = "Login failed due to incorrect credentials" });
-            }
 
-            // Generate and return the JWT token
-            var token = GenerateJwtToken(user.Id, user.Name, user.Email);
-
-            // Return successful response with the JWT token and user profile details
-            return Ok(new
-            {
-                token,
-                profile = new
-                {
-                    id = user.Id,
-                    name = user.Name,
-                    email = user.Email
-                }
-            });
+            return Ok(new { token = result.Token, profile = result.Profile });
         }
-
-        private bool VerifyPassword(string password, string passwordHash)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                var hashedPassword = Convert.ToBase64String(hashedBytes);
-                return string.Equals(hashedPassword, passwordHash);
-            }
-        }
-
-       /* private string GenerateJwtToken(int id, string name, string email)
-        {
-            var claims = new List<Claim>
-    {
-        new Claim("id", id.ToString()),
-        new Claim("name", name),
-        new Claim("email", email)
-    };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddMinutes(10),
-                signingCredentials: signIn);
-
-            string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return tokenString;
-        }*/
 
 
         private string GenerateJwtToken(int id, string name, string email)
@@ -298,5 +201,6 @@ namespace MiniChatApp2.Controllers
         {
             return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+      
     }
 }
