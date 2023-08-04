@@ -26,5 +26,9 @@ namespace MiniChatApp2.Repositories
         {
             await _context.SaveChangesAsync();
         }
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            return await _context.User.ToListAsync();
+        }
     }
 }
