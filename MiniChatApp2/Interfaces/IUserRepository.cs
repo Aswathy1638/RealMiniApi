@@ -7,5 +7,6 @@ namespace MiniChatApp2.Interfaces
         Task<User> AddUserAsync(User user);
         Task<User> GetUserByEmailAsync(string email);
         Task SaveChangesAsync();
+        Task<List<User>> GetAllUsersAsync();
     }
 }

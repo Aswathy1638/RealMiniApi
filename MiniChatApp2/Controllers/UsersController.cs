@@ -38,31 +38,21 @@ namespace MiniChatApp2.Controllers
 
       
         [HttpGet]
-       public async Task<ActionResult<IEnumerable<User>>> GetUserList()
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
         {
-            // Get the current user's email from the claims
-            var currentUser = HttpContext.User;
-            var currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-
-            var id = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (!HttpContext.User.Identity.IsAuthenticated)
+            try
             {
-                return Unauthorized(new { message = "Unauthorized access" });
-            }
-            // Retrieve the user list excluding the current user
-            var users = await _context.User
-          .Where(u => u.Email != currentUserEmail) // Exclude the current user
-          .Select(u => new
-          {
-              id = u.Id,
-              name = u.Name,
-              email = u.Email
-          })
-          .ToListAsync();
+                // Retrieve the current user's email from the authentication context
+                string currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
 
-            // Return the user list
-            return Ok(users);
+                var users = await _userService.GetAllUserAsync(currentUserEmail);
+                return Ok(new { users });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         // GET: api/Users/5

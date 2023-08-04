@@ -68,31 +68,21 @@ namespace MiniChatApp2.Services
             };
         }
 
+        public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
+        {
+            var users = await _userRepository.GetAllUsersAsync();
 
-        //public async Task<LoginResult> LoginAsync(string email, string password)
-        //{
-        //    var user = await _userRepository.GetUserByEmailAsync(email);
+            // Exclude the current user from the list
+            users = users.Where(u => u.Email != currentUserEmail).ToList();
 
-        //    if (user == null || !VerifyPassword(password, user.Password))
-        //    {
-        //        return new LoginResult { Success = false, Error = LoginResultError.InvalidCredentials };
-        //    }
-
-        //    var token = GenerateJwtToken(user.Id, user.Name, user.Email);
-
-        //    return new LoginResult
-        //    {
-        //        Success = true,
-        //        Token = token,
-        //        Profile = new User
-        //        {
-        //            Id = user.Id,
-        //            Name = user.Name,
-        //            Email = user.Email
-        //        },
-        //        Error = LoginResultError.None
-        //    };
-        //}
+          
+            return users.Select(u => new User
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Email = u.Email
+            }).ToList();
+        }
 
         private string HashPassword(string password)
         {
