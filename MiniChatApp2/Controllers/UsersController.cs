@@ -136,7 +136,7 @@ namespace MiniChatApp2.Controllers
             return NoContent();
         }
         [HttpPost("register")]
-        public async Task<ActionResult<IdentityResult>> PostUser(User user)
+        public async Task<IActionResult> PostUser(User user)
         {
             // Check if the model is valid
             if (!ModelState.IsValid)
@@ -144,7 +144,9 @@ namespace MiniChatApp2.Controllers
                 return BadRequest(new { error = "Registration failed due to validation errors" });
             }
          
-            return await _userService.RegisterUser(user);
+            var res = await _userService.RegisterUserAsync(user);
+
+            return Ok(res);
 
             // Check if the email is already registered
           

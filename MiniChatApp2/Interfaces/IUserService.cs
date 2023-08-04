@@ -11,6 +11,6 @@ namespace MiniChatApp2.Interfaces
 
         Task<LoginResponseDto> LoginAsync(LoginDto model);
 
-        Task<ActionResult> RegisterUser(User user);
+        Task<User> RegisterUserAsync(User user);
     }
 }

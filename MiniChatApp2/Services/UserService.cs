@@ -11,9 +11,10 @@ namespace MiniChatApp2.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _configuration = configuration;
         }
 
         public Task<User> GetUserByEmail(string email)
@@ -106,6 +107,11 @@ namespace MiniChatApp2.Services
 
         private string GenerateJwtToken(int id, string name, string email)
         {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+            {
+                throw new ArgumentNullException("name and email cannot be null or empty.");
+            }
+
             var claims = new[] {
                 new Claim(ClaimTypes.NameIdentifier, id.ToString()),
                 new Claim(ClaimTypes.Name, name),
