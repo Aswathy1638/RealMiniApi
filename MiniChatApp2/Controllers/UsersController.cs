@@ -7,6 +7,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,7 @@ namespace MiniChatApp2.Controllers
 
       
         [HttpGet]
-        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
             try
