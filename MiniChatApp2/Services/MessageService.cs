@@ -58,6 +58,20 @@ namespace MiniChatApp2.Services
 
             return new OkObjectResult(new { message = "Message deleted successfully" });
         }
+        public async Task<IActionResult> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
+        {
+            // Fetch the conversation history from the repository asynchronously
+            var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);
+
+            // Check if the conversation exists
+            if (conversation == null)
+            {
+                return new NotFoundObjectResult(new { error = "User or conversation not found" });
+            }
+
+            // Return the conversation history
+            return new OkObjectResult(new { messages = conversation });
+        }
         private string GetCurrentUserId()
         {
             // Retrieve the user ID from the ClaimsPrincipal (User) available in the controller
