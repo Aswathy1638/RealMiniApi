@@ -116,16 +116,16 @@ namespace MiniChatApp2.Controllers
 
 
 
-            if (messages == null)
+            var editedMessage = await _messageService.EditMessageAsync(id, message, int.Parse(userId));
+
+            if (editedMessage == null)
             {
-                return NotFound(new { message = "message not found" });
+                return NotFound(new { error = "Message not found or not editable by the current user." });
             }
 
-            messages.Content = message.Content;
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Message edited successfully" });
+            return Ok(new { message = "Message edited successfully." });
         }
+    
 
         [HttpPost]
         [Authorize]
@@ -152,56 +152,6 @@ namespace MiniChatApp2.Controllers
         }
 
 
-        /* [HttpPost]
-         public async Task<ActionResult<MessageResponse>> PostMessage(MessageCreateDto message)
-         {
-             if (!ModelState.IsValid)
-             {
-                 return BadRequest(new { message = "Message sending failed due to validation errors." });
-             }
-
-             var currentUser = HttpContext.User;
-             var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-             Console.WriteLine(userId);
-
-             // Check if the sender user exists
-             var senderUser = await _context.User.FindAsync(Convert.ToInt32(userId));
-             if (senderUser == null)
-             {
-                 return NotFound(new { error = "Sender user not found." });
-             }
-
-             // Check if the receiver user exists
-             var receiverUser = await _context.User.FindAsync(message.ReceiverId);
-             if (receiverUser == null)
-             {
-                 return NotFound(new { error = "Receiver user not found." });
-             }
-
-             var messageEntity = new Message
-             {
-                 senderId = Convert.ToInt32(userId),
-                 receiverId = message.ReceiverId,
-                 Content = message.Content,
-                 Timestamp = DateTime.Now
-             };
-
-             _context.Message.Add(messageEntity);
-             await _context.SaveChangesAsync();
-
-             var messageResponse = new MessageResponse
-             {
-                 MessageId = messageEntity.Id,
-                 SenderId = messageEntity.senderId,
-                 ReceiverId = messageEntity.receiverId,
-                 Content = messageEntity.Content,
-                 Timestemp = messageEntity.Timestamp,
-             };
-
-             return Ok(messageResponse);
-         }
-
- */
 
         // DELETE: api/Messages/5
         [HttpDelete("{id}")]
