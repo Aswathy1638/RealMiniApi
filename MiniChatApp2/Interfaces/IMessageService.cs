@@ -1,4 +1,5 @@
-﻿using MiniChatApp2.Model;
+﻿using Microsoft.AspNetCore.Mvc;
+using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Interfaces
 {
@@ -6,5 +7,7 @@ namespace MiniChatApp2.Interfaces
     {
         Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, int senderId);
         Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId);
+        Task<IActionResult> DeleteMessageAsync(int messageId);
+
     }
 }

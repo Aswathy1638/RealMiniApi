@@ -154,32 +154,40 @@ namespace MiniChatApp2.Controllers
 
 
         // DELETE: api/Messages/5
+        /*   [HttpDelete("{id}")]
+
+           public async Task<IActionResult> DeleteMessage(int id)
+           {
+               var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+               // Check if the message exists
+               var message = await _context.Message.FindAsync(id);
+               if (message == null)
+               {
+                   return NotFound(new { error = "Message not found" });
+               }
+
+               // Check if the current user is the sender of the message
+               if (Convert.ToInt32(userId) != message.senderId)
+               {
+                   return Unauthorized(new { error = "You are not authorized to delete this message" });
+               }
+
+               // Delete the message and save changes
+               _context.Message.Remove(message);
+               await _context.SaveChangesAsync();
+
+               return Ok(new { message = "Message deleted successfully" });
+           }
+        */
+
         [HttpDelete("{id}")]
-     
         public async Task<IActionResult> DeleteMessage(int id)
         {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _messageService.DeleteMessageAsync(id);
 
-            // Check if the message exists
-            var message = await _context.Message.FindAsync(id);
-            if (message == null)
-            {
-                return NotFound(new { error = "Message not found" });
-            }
-
-            // Check if the current user is the sender of the message
-            if (Convert.ToInt32(userId) != message.senderId)
-            {
-                return Unauthorized(new { error = "You are not authorized to delete this message" });
-            }
-
-            // Delete the message and save changes
-            _context.Message.Remove(message);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Message deleted successfully" });
+            return result;
         }
-
 
         private bool MessageExists(int id)
         {
