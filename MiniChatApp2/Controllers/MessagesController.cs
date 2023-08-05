@@ -29,24 +29,23 @@ namespace MiniChatApp2.Controllers
             _context = context;
         }
 
-      
-       
+
+
 
         // GET: api/Messages
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Message>>> GetMessage()
+        [Authorize]
+        public async Task<IActionResult> GetConversationHistory(int userId, DateTime? before, int count = 20, string sort = "asc")
         {
-          if (_context.Message == null)
-          {
-              return NotFound();
-          }
-            return await _context.Message.ToListAsync();
+            var result = await _messageService.GetConversationHistoryAsync(userId, before, count, sort);
+
+            return result;
         }
 
         // GET: api/Messages/5
-      
 
-        
+
+
         [HttpGet("{id}")]
 
         public async Task<IActionResult> GetMessage(int id)

@@ -10,6 +10,6 @@ namespace MiniChatApp2.Interfaces
         Task<MessageResponseDto> EditMessageAsync(int id, MessageEditDto message, int editorId);
         Task<Message> GetMessageByIdAsync(int messageId);
         Task DeleteMessageAsync(int messageId);
-
+        Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort);
     }
 }
