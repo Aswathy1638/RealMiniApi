@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
@@ -10,10 +11,11 @@ namespace MiniChatApp2.Services
     public class MessageService : IMessageService
     {
         private readonly IMessageRepository _messageRepository;
-
-        public MessageService(IMessageRepository messageRepository)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor)
         {
             _messageRepository = messageRepository;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, int senderId)
@@ -32,6 +34,35 @@ namespace MiniChatApp2.Services
             var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
 
             return editedMessage;
+        }
+
+        public async Task<IActionResult> DeleteMessageAsync(int messageId)
+        {
+            // Fetch the message by its ID from the repository asynchronously
+            var message = await _messageRepository.GetMessageByIdAsync(messageId);
+
+            // Check if the message exists
+            if (message == null)
+            {
+                return new NotFoundObjectResult(new { error = "Message not found" });
+            }
+
+            // Check if the current user is the sender of the message (you need to implement authentication)
+            if (GetCurrentUserId() != message.senderId.ToString())
+            {
+                return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
+            }
+
+            // Delete the message and save changes
+            await _messageRepository.DeleteMessageAsync(messageId);
+
+            return new OkObjectResult(new { message = "Message deleted successfully" });
+        }
+        private string GetCurrentUserId()
+        {
+            // Retrieve the user ID from the ClaimsPrincipal (User) available in the controller
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
         }
     }
 }

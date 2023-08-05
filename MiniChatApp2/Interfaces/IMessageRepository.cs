@@ -8,6 +8,8 @@ namespace MiniChatApp2.Interfaces
     {
         Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, int senderId);
         Task<MessageResponseDto> EditMessageAsync(int id, MessageEditDto message, int editorId);
+        Task<Message> GetMessageByIdAsync(int messageId);
+        Task DeleteMessageAsync(int messageId);
 
     }
 }
