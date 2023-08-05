@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Middlewares;
+using MiniChatApp2.Model;
 using MiniChatApp2.Repositories;
 using MiniChatApp2.Services;
 using System.Text;
@@ -24,10 +25,16 @@ namespace MiniChatApp2
 
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
             // Add services to the container.
 
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -43,8 +50,7 @@ namespace MiniChatApp2
                 };
             });
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
 
             var app = builder.Build();
 

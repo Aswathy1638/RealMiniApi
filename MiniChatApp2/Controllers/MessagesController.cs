@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Data;
+using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using static MiniChatApp2.Model.MessageResponseDto;
 
@@ -17,12 +19,18 @@ namespace MiniChatApp2.Controllers
     [ApiController]
     public class MessagesController : ControllerBase
     {
+        private readonly IMessageService _messageService;
         private readonly MiniChatApp2Context _context;
         private static readonly List<Message> _messages = new List<Message>();
-        public MessagesController(MiniChatApp2Context context)
+
+        public MessagesController(IMessageService messageService, MiniChatApp2Context context)
         {
+            _messageService = messageService;
             _context = context;
         }
+
+      
+       
 
         // GET: api/Messages
         [HttpGet]
@@ -119,108 +127,81 @@ namespace MiniChatApp2.Controllers
             return Ok(new { message = "Message edited successfully" });
         }
 
-        /*
-        // PUT: api/Messages/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMessage(int id, Message message)
-        {
-            if (id != message.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(message).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MessageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Messages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /* [HttpPost]
-         public async Task<ActionResult<Message>> PostMessage(Message message)
-         {
-           if (_context.Message == null)
-           {
-               return Problem("Entity set 'MiniChatApp2Context.Message'  is null.");
-           }
-             _context.Message.Add(message);
-             await _context.SaveChangesAsync();
-
-             return CreatedAtAction("GetMessage", new { id = message.Id }, message);
-         }*/
-
-
-
-
         [HttpPost]
-        public async Task<ActionResult<MessageResponse>> PostMessage(MessageCreateDto message)
+        [Authorize]
+        public async Task<ActionResult<MessageResponseDto>> PostMessage(MessageCreateDto message)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(new { message = "Message sending failed due to validation errors." });
             }
-
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            Console.WriteLine(userId);
-
-            // Check if the sender user exists
-            var senderUser = await _context.User.FindAsync(Convert.ToInt32(userId));
-            if (senderUser == null)
+            if (string.IsNullOrEmpty(userId))
             {
-                return NotFound(new { error = "Sender user not found." });
+                return Unauthorized(new { message = "Unauthorized access." });
             }
+            var messageResponse = await _messageService.SendMessageAsync(message, int.Parse(userId));
 
-            // Check if the receiver user exists
-            var receiverUser = await _context.User.FindAsync(message.ReceiverId);
-            if (receiverUser == null)
+            if (messageResponse == null)
             {
-                return NotFound(new { error = "Receiver user not found." });
+                return NotFound(new { error = "Sender or receiver user not found." });
             }
-
-            var messageEntity = new Message
-            {
-                senderId = Convert.ToInt32(userId),
-                receiverId = message.ReceiverId,
-                Content = message.Content,
-                Timestamp = DateTime.Now
-            };
-
-            _context.Message.Add(messageEntity);
-            await _context.SaveChangesAsync();
-
-            var messageResponse = new MessageResponse
-            {
-                MessageId = messageEntity.Id,
-                SenderId = messageEntity.senderId,
-                ReceiverId = messageEntity.receiverId,
-                Content = messageEntity.Content,
-                Timestemp = messageEntity.Timestamp,
-            };
 
             return Ok(messageResponse);
         }
 
 
+        /* [HttpPost]
+         public async Task<ActionResult<MessageResponse>> PostMessage(MessageCreateDto message)
+         {
+             if (!ModelState.IsValid)
+             {
+                 return BadRequest(new { message = "Message sending failed due to validation errors." });
+             }
+
+             var currentUser = HttpContext.User;
+             var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+             Console.WriteLine(userId);
+
+             // Check if the sender user exists
+             var senderUser = await _context.User.FindAsync(Convert.ToInt32(userId));
+             if (senderUser == null)
+             {
+                 return NotFound(new { error = "Sender user not found." });
+             }
+
+             // Check if the receiver user exists
+             var receiverUser = await _context.User.FindAsync(message.ReceiverId);
+             if (receiverUser == null)
+             {
+                 return NotFound(new { error = "Receiver user not found." });
+             }
+
+             var messageEntity = new Message
+             {
+                 senderId = Convert.ToInt32(userId),
+                 receiverId = message.ReceiverId,
+                 Content = message.Content,
+                 Timestamp = DateTime.Now
+             };
+
+             _context.Message.Add(messageEntity);
+             await _context.SaveChangesAsync();
+
+             var messageResponse = new MessageResponse
+             {
+                 MessageId = messageEntity.Id,
+                 SenderId = messageEntity.senderId,
+                 ReceiverId = messageEntity.receiverId,
+                 Content = messageEntity.Content,
+                 Timestemp = messageEntity.Timestamp,
+             };
+
+             return Ok(messageResponse);
+         }
+
+ */
 
         // DELETE: api/Messages/5
         [HttpDelete("{id}")]
