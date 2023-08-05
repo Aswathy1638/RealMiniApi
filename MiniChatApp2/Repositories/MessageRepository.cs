@@ -53,5 +53,35 @@ namespace MiniChatApp2.Repositories
 
             return messageResponse;
         }
+
+        public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId)
+        {
+            var existingMessage = await _dbContext.Message.FindAsync(messageId);
+            if (existingMessage == null)
+            {
+                return null;
+            }
+
+            // Check if the current user is the sender of the message
+            if (existingMessage.senderId != editorId)
+            {
+                return null;
+            }
+
+            existingMessage.Content = message.Content;
+            _dbContext.Message.Update(existingMessage);
+            await _dbContext.SaveChangesAsync();
+
+            var messageResponse = new MessageResponseDto
+            {
+                MessageId = existingMessage.Id,
+                SenderId = existingMessage.senderId,
+                ReceiverId = existingMessage.receiverId,
+                Content = existingMessage.Content,
+                Timestamp = existingMessage.Timestamp,
+            };
+
+            return messageResponse;
+        }
     }
 }

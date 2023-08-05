@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using System.IdentityModel.Tokens.Jwt;
@@ -86,13 +87,9 @@ namespace MiniChatApp2.Services
 
         private string HashPassword(string password)
         {
-            using (var md5 = System.Security.Cryptography.MD5.Create())
-            {
-                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(password);
-                byte[] hashBytes = md5.ComputeHash(inputBytes);
-                string hashedPassword = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-                return hashedPassword;
-            }
+            string salt = BCrypt.Net.BCrypt.GenerateSalt();
+            string hash = BCrypt.Net.BCrypt.HashPassword(password, salt);
+            return hash;
         }
 
         private string GenerateJwtToken(int id, string name, string email)
@@ -124,12 +121,8 @@ namespace MiniChatApp2.Services
         }
         private bool VerifyPassword(string password, string passwordHash)
         {
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                var hashedPassword = Convert.ToBase64String(hashedBytes);
-                return string.Equals(hashedPassword, passwordHash);
-            }
+            return BCrypt.Net.BCrypt.Verify(password, passwordHash);
+          
         }
     }
 }
