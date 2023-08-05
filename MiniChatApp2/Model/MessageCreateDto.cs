@@ -3,7 +3,8 @@
     public class MessageCreateDto
     {
    
-            public int ReceiverId { get; set; }
+            public int receiverId { get; set; }
+      
             public string Content { get; set; }
         }
     }
