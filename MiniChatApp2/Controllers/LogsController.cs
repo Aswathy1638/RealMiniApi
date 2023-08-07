@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Data;
+using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Controllers
@@ -15,48 +17,30 @@ namespace MiniChatApp2.Controllers
     public class LogsController : ControllerBase
     {
         private readonly MiniChatApp2Context _context;
+        private readonly ILogService _logService;
 
-        public LogsController(MiniChatApp2Context context)
+        public LogsController(MiniChatApp2Context context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         // GET: api/Logs
-        
+
+
         [HttpGet]
         public async Task<IActionResult> GetLogs(DateTime? endTime = null, DateTime? startTime = null)
         {
-            if (endTime == null)
-                endTime = DateTime.UtcNow;
+            var logs = await _logService.GetLogs(endTime, startTime);
 
-            if (startTime == null)
-                startTime = DateTime.UtcNow.AddMinutes(-5);
-
-            if (startTime >= endTime)
+            if (!logs.Any())
             {
-                return BadRequest(new { error = "StartTime must be earlier than EndTime" });
+                return NotFound();
             }
 
-            var logs = await _context.Logs
-               
-                .Select(log => new
-                {
-                    Id = log.id,
-                    Ip = log.ip,
-                    Username = log.Username,
-                    RequestBody = log.RequestBody.Replace("\n", "").Replace("\"", "").Replace("\r", ""),
-                    TimeStamp = log.TimeStamp,
-                })
-                .ToListAsync();
-
-            if (logs.Count == 0)
-            {
-                return NotFound(new { message = "Logs not found" });
-            }
-
-            return Ok(new { Logs = logs });
+            return Ok(logs);
         }
-
+        
 
         // GET: api/Logs/5
         [HttpGet("{id}")]

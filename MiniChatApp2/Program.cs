@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +10,9 @@ using MiniChatApp2.Model;
 using MiniChatApp2.Repositories;
 using MiniChatApp2.Services;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace MiniChatApp2
 {
@@ -21,16 +25,24 @@ namespace MiniChatApp2
                 options.UseSqlServer(builder.Configuration.GetConnectionString("MiniChatApp2Context") ));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddScoped<Middleware>();
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                 .AddEntityFrameworkStores <MiniChatApp2Context>()
+                 .AddDefaultTokenProviders();
+
 
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
             builder.Services.AddScoped<IMessageService, MessageService>();
-            // Add services to the container.
 
+            builder.Services.AddScoped<ILogRepository, LogRepository>();
+            builder.Services.AddScoped<ILogService, LogService>();
+
+            // Add services to the container.
+            builder.Services.AddTransient<Middleware>();
             builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
