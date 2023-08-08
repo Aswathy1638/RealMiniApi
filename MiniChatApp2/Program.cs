@@ -101,6 +101,7 @@ namespace MiniChatApp2
             app.MapControllers();
 
             app.Run();
+            //for gitttt
         }
     }
 }
