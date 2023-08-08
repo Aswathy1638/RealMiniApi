@@ -1,31 +1,34 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using System.Linq.Expressions;
 
 namespace MiniChatApp2.Repositories
-{/*
+{
     public class MessageRepository:IMessageRepository
     {
-        private readonly MiniChatApp2Context _dbContext;
+        private readonly RealAppContext _dbContext;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public MessageRepository(MiniChatApp2Context context)
+        public MessageRepository(RealAppContext context, UserManager<IdentityUser> userManager)
         {
             _dbContext = context;
+            _userManager = userManager;
         }
 
-        public async Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, int senderId)
+        public async Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, string senderId)
         {
             // Check if the sender user exists
-            var senderUser = await _dbContext.User.FindAsync(senderId);
+            var senderUser = await _userManager.FindByIdAsync(senderId);
             if (senderUser == null)
             {
                 return null;
             }
 
             // Check if the receiver user exists
-            var receiverUser = await _dbContext.User.FindAsync(message.receiverId);
+            var receiverUser = await _userManager.FindByIdAsync(message.receiverId);
             if (receiverUser == null)
             {
                 return null;
@@ -54,71 +57,71 @@ namespace MiniChatApp2.Repositories
             return messageResponse;
         }
 
-        public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId)
-        {
-            var existingMessage = await _dbContext.Message.FindAsync(messageId);
-            if (existingMessage == null)
-            {
-                return null;
-            }
+        //public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId)
+        //{
+        //    var existingMessage = await _dbContext.Message.FindAsync(messageId);
+        //    if (existingMessage == null)
+        //    {
+        //        return null;
+        //    }
 
-            // Check if the current user is the sender of the message
-            if (existingMessage.senderId != editorId)
-            {
-                return null;
-            }
+        //    // Check if the current user is the sender of the message
+        //    if (existingMessage.senderId != editorId)
+        //    {
+        //        return null;
+        //    }
 
-            existingMessage.Content = message.Content;
-            _dbContext.Message.Update(existingMessage);
-            await _dbContext.SaveChangesAsync();
+        //    existingMessage.Content = message.Content;
+        //    _dbContext.Message.Update(existingMessage);
+        //    await _dbContext.SaveChangesAsync();
 
-            var messageResponse = new MessageResponseDto
-            {
-                MessageId = existingMessage.Id,
-                SenderId = existingMessage.senderId,
-                ReceiverId = existingMessage.receiverId,
-                Content = existingMessage.Content,
-                Timestamp = existingMessage.Timestamp,
-            };
+        //    var messageResponse = new MessageResponseDto
+        //    {
+        //        MessageId = existingMessage.Id,
+        //        SenderId = existingMessage.senderId,
+        //        ReceiverId = existingMessage.receiverId,
+        //        Content = existingMessage.Content,
+        //        Timestamp = existingMessage.Timestamp,
+        //    };
 
-            return messageResponse;
-        }
+        //    return messageResponse;
+        //}
 
-        public async Task<Message> GetMessageByIdAsync(int messageId)
-        {
-            return await _dbContext.Message.FindAsync(messageId);
-        }
+        //public async Task<Message> GetMessageByIdAsync(int messageId)
+        //{
+        //    return await _dbContext.Message.FindAsync(messageId);
+        //}
 
-        public async Task DeleteMessageAsync(int messageId)
-        {
-            var message = await GetMessageByIdAsync(messageId);
-            if (message != null)
-            {
-                _dbContext.Message.Remove(message);
-                await _dbContext.SaveChangesAsync();
-            }
-        }
+        //public async Task DeleteMessageAsync(int messageId)
+        //{
+        //    var message = await GetMessageByIdAsync(messageId);
+        //    if (message != null)
+        //    {
+        //        _dbContext.Message.Remove(message);
+        //        await _dbContext.SaveChangesAsync();
+        //    }
+        //}
 
-        public async Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
-        {
-            // Retrieve conversation history based on the provided parameters
-            var query = _dbContext.Message
-                .Where(m => (m.senderId == userId || m.receiverId == userId));
+        //public async Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
+        //{
+        //    // Retrieve conversation history based on the provided parameters
+        //    var query = _dbContext.Message
+        //        .Where(m => (m.senderId == userId || m.receiverId == userId));
 
-            if (before.HasValue)
-            {
-                query = query.Where(m => m.Timestamp < before);
-            }
+        //    if (before.HasValue)
+        //    {
+        //        query = query.Where(m => m.Timestamp < before);
+        //    }
 
-            query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
+        //    query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
 
-            if (count > 0)
-            {
-                query = query.Take(count);
-            }
+        //    if (count > 0)
+        //    {
+        //        query = query.Take(count);
+        //    }
 
-            return await query.ToListAsync();
-        }
+        //    return await query.ToListAsync();
+        //}
 
-    }*/
+    }
 }

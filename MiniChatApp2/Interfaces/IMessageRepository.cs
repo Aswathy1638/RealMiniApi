@@ -6,10 +6,10 @@ namespace MiniChatApp2.Interfaces
 {
     public interface IMessageRepository
     {
-        Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, int senderId);
-        Task<MessageResponseDto> EditMessageAsync(int id, MessageEditDto message, int editorId);
-        Task<Message> GetMessageByIdAsync(int messageId);
-        Task DeleteMessageAsync(int messageId);
-        Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort);
+        Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, string senderId);
+       // Task<MessageResponseDto> EditMessageAsync(int id, MessageEditDto message, int editorId);
+      //  Task<Message> GetMessageByIdAsync(int messageId);
+       // Task DeleteMessageAsync(int messageId);
+       // Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort);
     }
 }

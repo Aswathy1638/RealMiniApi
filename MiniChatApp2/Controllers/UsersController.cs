@@ -31,12 +31,12 @@ namespace MiniChatApp2.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
-        private readonly UserManager<IdentityUser<int>> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<UsersController> _logger;
         private readonly RealAppContext _context;
         private readonly string _jwtSecretKey = "your_secret_key_here";
         private readonly IConfiguration _configuration;
-        public UsersController(UserManager<IdentityUser<int>> userManager,RealAppContext context, IConfiguration configuration, IUserService userService, ILogger<UsersController> logger,IUserRepository userRepository)
+        public UsersController(UserManager<IdentityUser> userManager,RealAppContext context, IConfiguration configuration, IUserService userService, ILogger<UsersController> logger,IUserRepository userRepository)
         {
             _context = context;
             _configuration = configuration;
