@@ -8,8 +8,8 @@ namespace MiniChatApp2.Interfaces
 
         Task<IdentityUser<int>> FindByEmailAsync(string email);
         Task<IdentityResult> CreateAsync(IdentityUser<int> user, string password);
-
-
+       
+        Task<List<UserProfile>> GetAllUsersAsync(string currentUserEmail);
         //  Task<User> AddUserAsync(User user);
         // Task<User> GetUserByEmailAsync(string email);
         //Task SaveChangesAsync();

@@ -31,37 +31,39 @@ namespace MiniChatApp2.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
+        private readonly UserManager<IdentityUser<int>> _userManager;
         private readonly ILogger<UsersController> _logger;
         private readonly RealAppContext _context;
         private readonly string _jwtSecretKey = "your_secret_key_here";
         private readonly IConfiguration _configuration;
-        public UsersController(RealAppContext context, IConfiguration configuration, IUserService userService, ILogger<UsersController> logger,IUserRepository userRepository)
+        public UsersController(UserManager<IdentityUser<int>> userManager,RealAppContext context, IConfiguration configuration, IUserService userService, ILogger<UsersController> logger,IUserRepository userRepository)
         {
             _context = context;
             _configuration = configuration;
             _userService = userService;
             _logger = logger;
             _userRepository = userRepository;
+            _userManager = userManager;
         }
 
+        [Authorize]
+       [HttpGet]
+      
+     public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                // Retrieve the current user's email from the authentication context
+                string currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
 
-        /* [HttpGet]
-       [Authorize]
-       public async Task<IActionResult> GetAllUsers()
-       {
-           try
-           {
-               // Retrieve the current user's email from the authentication context
-               string currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-
-               var users = await _userService.GetAllUserAsync(currentUserEmail);
-               return Ok(new { users });
-           }
-           catch (Exception ex)
-           {
-               return BadRequest(new { error = ex.Message });
-           }
-       }*/
+                var users = await _userService.GetAllUsersAsync(currentUserEmail);
+                return Ok(new { users });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
         // GET: api/Users/5
         /*  [HttpGet("{id}")]

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Scripting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
@@ -45,7 +46,7 @@ namespace MiniChatApp2.Services
             // Create a new user
             var newUser = new IdentityUser<int>
             {
-                UserName = request.Email,
+                UserName = request.Name,
                 Email = request.Email
             };
 
@@ -56,7 +57,7 @@ namespace MiniChatApp2.Services
                 // Return the successful registration response
                 return (true, new
                 {
-                    userId = newUser.Id,
+                   
                     name = request.Name,
                     email = request.Email
                 });
@@ -115,28 +116,33 @@ namespace MiniChatApp2.Services
                 Token = token,
                 Profile = new UserProfile
                 {
-                    Id = user.Id.ToString(),
+                    Id = user.Id,
                     Name = user.UserName,
                     Email = user.Email
                 }
             };
         }
 
-        /* public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
-         {
-             var users = await _userRepository.GetAllUsersAsync();
+        //public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
+        // {
+        //     var users = await _userRepository.GetAllUsersAsync();
 
-             // Exclude the current user from the list
-             users = users.Where(u => u.Email != currentUserEmail).ToList();
+        //     // Exclude the current user from the list
+        //     users = users.Where(u => u.Email != currentUserEmail).ToList();
 
 
-             return users.Select(u => new User
-             {
-                 Id = u.Id,
-                 Name = u.Name,
-                 Email = u.Email
-             }).ToList();
-         }*/
+        //     return users.Select(u => new User
+        //     {
+        //         Id = u.Id,
+        //         Name = u.Name,
+        //         Email = u.Email
+        //     }).ToList();
+        // }
+
+        public async Task<List<UserProfile>> GetAllUsersAsync(string currentUserEmail)
+        {
+            return await _userRepository.GetAllUsersAsync(currentUserEmail);
+        }
 
         private string HashPassword(string password)
         {

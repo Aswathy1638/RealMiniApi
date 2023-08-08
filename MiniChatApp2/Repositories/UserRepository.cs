@@ -23,6 +23,20 @@ namespace MiniChatApp2.Repositories
         {
             return _userManager.CreateAsync(user, password);
         }
+        public async Task<List<UserProfile>> GetAllUsersAsync(string currentUserEmail)
+        {
+            var allUsers = await _userManager.Users.ToListAsync();
+
+            // Exclude the current user from the list
+            var users = allUsers.Where(u => u.Email != currentUserEmail).Select(u => new UserProfile
+            {
+                Id = u.Id,
+                Name = u.UserName,
+                Email = u.Email
+            }).ToList();
+
+            return users;
+        }
         //public async Task<User> AddUserAsync(User user)
         //  {
         //      var result = await _userManager.CreateAsync(user, user.Password);
