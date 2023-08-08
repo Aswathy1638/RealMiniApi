@@ -95,7 +95,7 @@ namespace MiniChatApp2.Controllers
              return Ok(messages);
          }
 
-
+        */
 
          [HttpPut("{id}")]
          public async Task<IActionResult> PutMessage(int id, MessageEditDto message)
@@ -108,14 +108,14 @@ namespace MiniChatApp2.Controllers
                  return BadRequest(new { message = "Invalid Credentials" });
              }
 
-             if (Convert.ToInt32(userId) != messages.senderId)
+             if (userId != messages.senderId)
              {
                  return Unauthorized(new { message = "Unauthorized access" });
              }
 
 
 
-             var editedMessage = await _messageService.EditMessageAsync(id, message, int.Parse(userId));
+             var editedMessage = await _messageService.EditMessageAsync(id, message, userId);
 
              if (editedMessage == null)
              {
@@ -124,7 +124,7 @@ namespace MiniChatApp2.Controllers
 
              return Ok(new { message = "Message edited successfully." });
          }
-     */
+   
 
         [HttpPost]
         [Authorize]
