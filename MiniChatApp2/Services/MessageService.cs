@@ -18,7 +18,7 @@ namespace MiniChatApp2.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, int senderId)
+        public async Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, string senderId)
         {
             // Additional validation and business logic can be implemented here
 
@@ -27,51 +27,51 @@ namespace MiniChatApp2.Services
             return messageResponse;
         }
 
-        public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId)
-        {
-            // Additional validation and business logic can be implemented here
+        //public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId)
+        //{
+        //    // Additional validation and business logic can be implemented here
 
-            var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
+        //    var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
 
-            return editedMessage;
-        }
+        //    return editedMessage;
+        //}
 
-        public async Task<IActionResult> DeleteMessageAsync(int messageId)
-        {
-            // Fetch the message by its ID from the repository asynchronously
-            var message = await _messageRepository.GetMessageByIdAsync(messageId);
+        //public async Task<IActionResult> DeleteMessageAsync(int messageId)
+        //{
+        //    // Fetch the message by its ID from the repository asynchronously
+        //    var message = await _messageRepository.GetMessageByIdAsync(messageId);
 
-            // Check if the message exists
-            if (message == null)
-            {
-                return new NotFoundObjectResult(new { error = "Message not found" });
-            }
+        //    // Check if the message exists
+        //    if (message == null)
+        //    {
+        //        return new NotFoundObjectResult(new { error = "Message not found" });
+        //    }
 
-            // Check if the current user is the sender of the message (you need to implement authentication)
-            if (GetCurrentUserId() != message.senderId.ToString())
-            {
-                return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
-            }
+        //    // Check if the current user is the sender of the message (you need to implement authentication)
+        //    if (GetCurrentUserId() != message.senderId.ToString())
+        //    {
+        //        return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
+        //    }
 
-            // Delete the message and save changes
-            await _messageRepository.DeleteMessageAsync(messageId);
+        //    // Delete the message and save changes
+        //    await _messageRepository.DeleteMessageAsync(messageId);
 
-            return new OkObjectResult(new { message = "Message deleted successfully" });
-        }
-        public async Task<IActionResult> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
-        {
-            // Fetch the conversation history from the repository asynchronously
-            var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);
+        //    return new OkObjectResult(new { message = "Message deleted successfully" });
+        //}
+        //public async Task<IActionResult> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
+        //{
+        //    // Fetch the conversation history from the repository asynchronously
+        //    var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);
 
-            // Check if the conversation exists
-            if (conversation == null)
-            {
-                return new NotFoundObjectResult(new { error = "User or conversation not found" });
-            }
+        //    // Check if the conversation exists
+        //    if (conversation == null)
+        //    {
+        //        return new NotFoundObjectResult(new { error = "User or conversation not found" });
+        //    }
 
-            // Return the conversation history
-            return new OkObjectResult(new { messages = conversation });
-        }
+        //    // Return the conversation history
+        //    return new OkObjectResult(new { messages = conversation });
+        //}
         private string GetCurrentUserId()
         {
             // Retrieve the user ID from the ClaimsPrincipal (User) available in the controller

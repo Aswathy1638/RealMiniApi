@@ -21,25 +21,29 @@ namespace MiniChatApp2
             builder.Services.AddDbContext<RealAppContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("RealAppContext") ));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-            builder.Services.AddIdentity<IdentityUser<int>, IdentityRole<int>>()
-        .AddEntityFrameworkStores<RealAppContext>();
 
-
+            builder.Services.AddScoped<UserManager<IdentityUser>>();
+            builder.Services.AddScoped<SignInManager<IdentityUser>>();
             // builder.Services.AddScoped<Middleware>();
 
             builder.Services.AddScoped<IUserService, UserService>();
              builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-            //builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-            // builder.Services.AddScoped<IMessageService, MessageService>();
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
             // Add services to the container.
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+             .AddEntityFrameworkStores<RealAppContext>()
+             .AddDefaultTokenProviders()
+             .AddUserManager<UserManager<IdentityUser>>(); ;
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
+             
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -14,9 +14,9 @@ namespace MiniChatApp2.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-        private readonly UserManager<IdentityUser<int>> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public UserService(IUserRepository userRepository, UserManager<IdentityUser<int>> userManager, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, UserManager<IdentityUser> userManager, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _userManager = userManager;
@@ -44,7 +44,7 @@ namespace MiniChatApp2.Services
             }
 
             // Create a new user
-            var newUser = new IdentityUser<int>
+            var newUser = new IdentityUser
             {
                 UserName = request.Name,
                 Email = request.Email
@@ -57,7 +57,7 @@ namespace MiniChatApp2.Services
                 // Return the successful registration response
                 return (true, new
                 {
-                   
+                   id=newUser.Id,
                     name = request.Name,
                     email = request.Email
                 });
@@ -116,7 +116,6 @@ namespace MiniChatApp2.Services
                 Token = token,
                 Profile = new UserProfile
                 {
-                    Id = user.Id,
                     Name = user.UserName,
                     Email = user.Email
                 }
@@ -151,7 +150,7 @@ namespace MiniChatApp2.Services
             return hash;
         }
 
-        private string GenerateJwtToken(int id, string name, string email)
+        private string GenerateJwtToken(string id, string name, string email)
         {
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
             {

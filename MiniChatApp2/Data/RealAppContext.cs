@@ -9,26 +9,22 @@ using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Data
 {
-    public class RealAppContext : IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>
+    public class RealAppContext : IdentityDbContext
     {
         public RealAppContext (DbContextOptions<RealAppContext> options)
             : base(options)
         {
         }
 
-      /*  public DbSet<User> User { get; set; }
-        public DbSet<Message> Message { get; set; }
-        public DbSet<Logs>Logs { get; set; }
+      
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>()
-                .Property(u => u.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<Message>().ToTable("Message");
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Logs>().ToTable("Logs");
 
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(l => new { l.LoginProvider, l.ProviderKey });
+            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(r => new { r.UserId, r.RoleId });
+            modelBuilder.Entity<IdentityUserToken<string>>().HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
             modelBuilder.Entity<Message>()
                .HasOne(m => m.sender)
                .WithMany()
@@ -40,6 +36,8 @@ namespace MiniChatApp2.Data
                 .WithMany()
                 .HasForeignKey(m => m.receiverId)
                 .OnDelete(DeleteBehavior.Restrict);
-        }*/
+        }
+        public DbSet<Message> Message { get; set; }
+        public DbSet<Logs>Logs { get; set; }
     }
 }

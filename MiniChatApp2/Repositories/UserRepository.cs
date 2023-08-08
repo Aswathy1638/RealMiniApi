@@ -6,20 +6,20 @@ using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Repositories
 {
-    public class UserRepository:IUserRepository
+    public class UserRepository: IUserRepository
     {
 
-        private readonly UserManager<IdentityUser<int>> _userManager;
-        public UserRepository(UserManager<IdentityUser<int>> userManager)
+        private readonly UserManager<IdentityUser> _userManager;
+        public UserRepository(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
         }
 
-        public Task<IdentityUser<int>> FindByEmailAsync(string email)
+        public Task<IdentityUser> FindByEmailAsync(string email)
         {
             return _userManager.FindByEmailAsync(email);
         }
-        public Task<IdentityResult> CreateAsync(IdentityUser<int> user, string password)
+        public Task<IdentityResult> CreateAsync(IdentityUser user, string password)
         {
             return _userManager.CreateAsync(user, password);
         }
