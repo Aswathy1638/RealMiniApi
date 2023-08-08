@@ -99,28 +99,28 @@ namespace MiniChatApp2.Services
 
 
 
-        //public async Task<LoginResponseDto> LoginAsync(LoginDto model)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(model.Email);
+        public async Task<LoginResponseDto> LoginAsync(LoginDto model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
 
-        //    if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-        //    {
-        //        throw new ArgumentException("Invalid credentials.");
-        //    }
+            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                throw new ArgumentException("Invalid credentials.");
+            }
 
-        //    var token = GenerateJwtToken(user.Id, user.Name, user.Email);
+            var token = GenerateJwtToken(user.Id, user.UserName, user.Email);
 
-        //    return new LoginResponseDto
-        //    {
-        //        Token = token,
-        //        Profile = new UserProfile
-        //        {
-        //            Id = user.Id.ToString(),
-        //            Name = user.Name,
-        //            Email = user.Email
-        //        }
-        //    };
-        //}
+            return new LoginResponseDto
+            {
+                Token = token,
+                Profile = new UserProfile
+                {
+                    Id = user.Id.ToString(),
+                    Name = user.UserName,
+                    Email = user.Email
+                }
+            };
+        }
 
         /* public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
          {

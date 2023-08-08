@@ -176,53 +176,53 @@ namespace MiniChatApp2.Controllers
 
 
 
-        [HttpPost("login")]
-        //public async Task<IActionResult> Login(LoginDto model)
+       [HttpPost("login")]
+       public async Task<IActionResult> Login(LoginDto model)
+       {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { error = "Login failed due to validation errors" });
+            }
+
+            var result = await _userService.LoginAsync(model);
+
+
+            return Ok(new { token = result.Token, profile = result.Profile });
+        }
+
+
+        //private string GenerateJwtToken(int id, string name, string email)
         //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(new { error = "Login failed due to validation errors" });
-        //    }
+        //    var claims = new[] {
+        //        new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+        //        new Claim(ClaimTypes.Name, name),
+        //        new Claim(ClaimTypes.Email, email)
+        //    };
 
-        //    var result = await _userService.LoginAsync(model);
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var token = new JwtSecurityToken(
+        //        _configuration["Jwt:Issuer"],
+        //        _configuration["Jwt:Audience"],
+        //        claims,
+        //        expires: DateTime.UtcNow.AddMinutes(10),
+        //        signingCredentials: signIn);
 
 
-        //    return Ok(new { token = result.Token, profile = result.Profile });
+        //    string Token = new JwtSecurityTokenHandler().WriteToken(token);
+
+        //    return Token;
         //}
 
-
-        private string GenerateJwtToken(int id, string name, string email)
-        {
-            var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Email, email)
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddMinutes(10),
-                signingCredentials: signIn);
-
-
-            string Token = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Token;
-        }
-
-        private string HashPassword(string password)
-        {
-            // Use a secure hashing algorithm, such as SHA-256 or bcrypt.
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
-            }
-        }
+        //private string HashPassword(string password)
+        //{
+        //    // Use a secure hashing algorithm, such as SHA-256 or bcrypt.
+        //    using (var sha256 = SHA256.Create())
+        //    {
+        //        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+        //        return Convert.ToBase64String(hashedBytes);
+        //    }
+        //}
       /*  private bool UserExists(int id)
         {
             return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
