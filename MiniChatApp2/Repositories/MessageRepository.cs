@@ -5,7 +5,7 @@ using MiniChatApp2.Model;
 using System.Linq.Expressions;
 
 namespace MiniChatApp2.Repositories
-{
+{/*
     public class MessageRepository:IMessageRepository
     {
         private readonly MiniChatApp2Context _dbContext;
@@ -120,5 +120,5 @@ namespace MiniChatApp2.Repositories
             return await query.ToListAsync();
         }
 
-    }
+    }*/
 }

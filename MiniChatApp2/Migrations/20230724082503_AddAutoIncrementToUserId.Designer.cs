@@ -10,7 +10,7 @@ using MiniChatApp2.Data;
 
 namespace MiniChatApp2.Migrations
 {
-    [DbContext(typeof(MiniChatApp2Context))]
+    [DbContext(typeof(RealAppContext))]
     [Migration("20230724082503_AddAutoIncrementToUserId")]
     partial class AddAutoIncrementToUserId
     {

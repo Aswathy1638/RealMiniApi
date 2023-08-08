@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Text;
 
 namespace MiniChatApp2.Middlewares
-{
+{/*
     public class Middleware : IMiddleware
     {
         private readonly RequestDelegate _next;
@@ -58,6 +58,6 @@ namespace MiniChatApp2.Middlewares
 
                 return requestBody;
             }
-        }
+        }*/
     }
 

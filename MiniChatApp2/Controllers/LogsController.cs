@@ -9,7 +9,7 @@ using MiniChatApp2.Data;
 using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Controllers
-{
+{/*
     [Route("api/[controller]")]
     [ApiController]
     public class LogsController : ControllerBase
@@ -146,5 +146,5 @@ namespace MiniChatApp2.Controllers
         {
             return (_context.Logs?.Any(e => e.id == id)).GetValueOrDefault();
         }
-    }
+    }*/
 }

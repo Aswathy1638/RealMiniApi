@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,18 +13,17 @@ using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using static MiniChatApp2.Model.MessageResponseDto;
-
-namespace MiniChatApp2.Controllers
 {
+namespace MiniChatApp2.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class MessagesController : ControllerBase
     {
         private readonly IMessageService _messageService;
-        private readonly MiniChatApp2Context _context;
+        private readonly RealAppContext _context;
         private static readonly List<Message> _messages = new List<Message>();
 
-        public MessagesController(IMessageService messageService, MiniChatApp2Context context)
+        public MessagesController(IMessageService messageService, RealAppContext context)
         {
             _messageService = messageService;
             _context = context;
@@ -178,7 +178,6 @@ namespace MiniChatApp2.Controllers
 
                return Ok(new { message = "Message deleted successfully" });
            }
-        */
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMessage(int id)
@@ -192,5 +191,6 @@ namespace MiniChatApp2.Controllers
         {
             return (_context.Message?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-    }
 }
+    }*/
+        

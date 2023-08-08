@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Model;
 
 namespace MiniChatApp2.Data
 {
-    public class MiniChatApp2Context : DbContext
+    public class RealAppContext : IdentityDbContext<IdentityUser<int>, IdentityRole<int>, int>
     {
-        public MiniChatApp2Context (DbContextOptions<MiniChatApp2Context> options)
+        public RealAppContext (DbContextOptions<RealAppContext> options)
             : base(options)
         {
         }
 
-        public DbSet<User> User { get; set; }
+      /*  public DbSet<User> User { get; set; }
         public DbSet<Message> Message { get; set; }
         public DbSet<Logs>Logs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,6 +40,6 @@ namespace MiniChatApp2.Data
                 .WithMany()
                 .HasForeignKey(m => m.receiverId)
                 .OnDelete(DeleteBehavior.Restrict);
-        }
+        }*/
     }
 }
