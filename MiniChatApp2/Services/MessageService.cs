@@ -34,28 +34,28 @@ namespace MiniChatApp2.Services
             return editedMessage;
         }
 
-        //public async Task<IActionResult> DeleteMessageAsync(int messageId)
-        //{
-        //    // Fetch the message by its ID from the repository asynchronously
-        //    var message = await _messageRepository.GetMessageByIdAsync(messageId);
+        public async Task<IActionResult> DeleteMessageAsync(int messageId)
+        {
+            // Fetch the message by its ID from the repository asynchronously
+            var message = await _messageRepository.GetMessageByIdAsync(messageId);
 
-        //    // Check if the message exists
-        //    if (message == null)
-        //    {
-        //        return new NotFoundObjectResult(new { error = "Message not found" });
-        //    }
+           // Check if the message exists
+            if (message == null)
+           {
+               return new NotFoundObjectResult(new { error = "Message not found" });
+            }
 
-        //    // Check if the current user is the sender of the message (you need to implement authentication)
-        //    if (GetCurrentUserId() != message.senderId.ToString())
-        //    {
-        //        return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
-        //    }
+           // Check if the current user is the sender of the message (you need to implement authentication)
+           if (GetCurrentUserId() != message.senderId.ToString())
+           {
+               return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
+           }
 
-        //    // Delete the message and save changes
-        //    await _messageRepository.DeleteMessageAsync(messageId);
+           // Delete the message and save changes
+          await _messageRepository.DeleteMessageAsync(messageId);
 
-        //    return new OkObjectResult(new { message = "Message deleted successfully" });
-        //}
+            return new OkObjectResult(new { message = "Message deleted successfully" });
+        }
         //public async Task<IActionResult> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
         //{
         //    // Fetch the conversation history from the repository asynchronously

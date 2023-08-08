@@ -87,20 +87,20 @@ namespace MiniChatApp2.Repositories
            return messageResponse;
         }
 
-        //public async Task<Message> GetMessageByIdAsync(int messageId)
-        //{
-        //    return await _dbContext.Message.FindAsync(messageId);
-        //}
+       public async Task<Message> GetMessageByIdAsync(int messageId)
+       {
+           return await _dbContext.Message.FindAsync(messageId);
+       }
 
-        //public async Task DeleteMessageAsync(int messageId)
-        //{
-        //    var message = await GetMessageByIdAsync(messageId);
-        //    if (message != null)
-        //    {
-        //        _dbContext.Message.Remove(message);
-        //        await _dbContext.SaveChangesAsync();
-        //    }
-        //}
+        public async Task DeleteMessageAsync(int messageId)
+        {
+            var message = await GetMessageByIdAsync(messageId);
+            if (message != null)
+            {
+                _dbContext.Message.Remove(message);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
 
         //public async Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
         //{

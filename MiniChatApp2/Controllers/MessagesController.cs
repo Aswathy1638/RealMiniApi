@@ -97,34 +97,34 @@ namespace MiniChatApp2.Controllers
 
         */
 
-         [HttpPut("{id}")]
-         public async Task<IActionResult> PutMessage(int id, MessageEditDto message)
-         {
-             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-             var messages = await _context.Message.FirstOrDefaultAsync(u => u.Id == id);
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutMessage(int id, MessageEditDto message)
+        {
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var messages = await _context.Message.FirstOrDefaultAsync(u => u.Id == id);
 
-             if (!ModelState.IsValid)
-             {
-                 return BadRequest(new { message = "Invalid Credentials" });
-             }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Invalid Credentials" });
+            }
 
-             if (userId != messages.senderId)
-             {
-                 return Unauthorized(new { message = "Unauthorized access" });
-             }
+            if (userId != messages.senderId)
+            {
+                return Unauthorized(new { message = "Unauthorized access" });
+            }
 
 
 
-             var editedMessage = await _messageService.EditMessageAsync(id, message, userId);
+            var editedMessage = await _messageService.EditMessageAsync(id, message, userId);
 
-             if (editedMessage == null)
-             {
-                 return NotFound(new { error = "Message not found or not editable by the current user." });
-             }
+            if (editedMessage == null)
+            {
+                return NotFound(new { error = "Message not found or not editable by the current user." });
+            }
 
-             return Ok(new { message = "Message edited successfully." });
-         }
-   
+            return Ok(new { message = "Message edited successfully." });
+        }
+
 
         [HttpPost]
         [Authorize]
@@ -149,36 +149,11 @@ namespace MiniChatApp2.Controllers
 
             return Ok(messageResponse);
         }
-    }
-}
 
 
-        // DELETE: api/Messages/5
-        /*   [HttpDelete("{id}")]
 
-           public async Task<IActionResult> DeleteMessage(int id)
-           {
-               var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-               // Check if the message exists
-               var message = await _context.Message.FindAsync(id);
-               if (message == null)
-               {
-                   return NotFound(new { error = "Message not found" });
-               }
 
-               // Check if the current user is the sender of the message
-               if (Convert.ToInt32(userId) != message.senderId)
-               {
-                   return Unauthorized(new { error = "You are not authorized to delete this message" });
-               }
-
-               // Delete the message and save changes
-               _context.Message.Remove(message);
-               await _context.SaveChangesAsync();
-
-               return Ok(new { message = "Message deleted successfully" });
-           }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMessage(int id)
@@ -192,7 +167,8 @@ namespace MiniChatApp2.Controllers
         {
             return (_context.Message?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+    }
 }
-    }*/
+    
         
 
