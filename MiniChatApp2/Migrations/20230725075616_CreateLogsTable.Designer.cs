@@ -11,7 +11,7 @@ using MiniChatApp2.Data;
 
 namespace MiniChatApp2.Migrations
 {
-    [DbContext(typeof(MiniChatApp2Context))]
+    [DbContext(typeof(RealAppContext))]
     [Migration("20230725075616_CreateLogsTable")]
     partial class CreateLogsTable
     {

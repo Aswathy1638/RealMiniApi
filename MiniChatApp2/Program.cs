@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -17,17 +18,20 @@ namespace MiniChatApp2
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDbContext<MiniChatApp2Context>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("MiniChatApp2Context") ));
+            builder.Services.AddDbContext<RealAppContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("RealAppContext") ));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            builder.Services.AddIdentity<IdentityUser<int>, IdentityRole<int>>()
+        .AddEntityFrameworkStores<RealAppContext>();
 
-            builder.Services.AddScoped<Middleware>();
+
+            // builder.Services.AddScoped<Middleware>();
 
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
+             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-            builder.Services.AddScoped<IMessageService, MessageService>();
+            //builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+            // builder.Services.AddScoped<IMessageService, MessageService>();
             // Add services to the container.
 
             builder.Services.AddHttpContextAccessor();
@@ -65,13 +69,15 @@ namespace MiniChatApp2
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors(builder => builder.AllowAnyOrigin().
+            AllowAnyMethod().
+            AllowAnyHeader());
 
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
 
-                var context = services.GetRequiredService<MiniChatApp2Context>();
+                var context = services.GetRequiredService<RealAppContext>();
                 context.Database.EnsureCreated();
                 // DbInitializer.Initialize(context);
             }
@@ -81,7 +87,7 @@ namespace MiniChatApp2
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseMiddleware<Middleware>();
+           // app.UseMiddleware<Middleware>();
             
             app.MapControllers();
 

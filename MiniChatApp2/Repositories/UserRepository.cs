@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
@@ -7,28 +8,45 @@ namespace MiniChatApp2.Repositories
 {
     public class UserRepository:IUserRepository
     {
-        private readonly MiniChatApp2Context _context;
-        public UserRepository(MiniChatApp2Context context)
+
+        private readonly UserManager<IdentityUser<int>> _userManager;
+        public UserRepository(UserManager<IdentityUser<int>> userManager)
         {
-            _context = context;
+            _userManager = userManager;
         }
-        public async Task<User> AddUserAsync(User user)
+
+        public Task<IdentityUser<int>> FindByEmailAsync(string email)
         {
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
-            return user;
+            return _userManager.FindByEmailAsync(email);
         }
-        public async Task<User> GetUserByEmailAsync(string email)
+        public Task<IdentityResult> CreateAsync(IdentityUser<int> user, string password)
         {
-            return await _context.User.FirstOrDefaultAsync(u => u.Email == email);
+            return _userManager.CreateAsync(user, password);
         }
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-        public async Task<List<User>> GetAllUsersAsync()
-        {
-            return await _context.User.ToListAsync();
-        }
+        //public async Task<User> AddUserAsync(User user)
+        //  {
+        //      var result = await _userManager.CreateAsync(user, user.Password);
+
+        //      if (result.Succeeded)
+        //      {
+        //          return user;
+        //      }
+
+        //      return null;
+        //  }
+
+
+        /* public async Task<User> GetUserByEmailAsync(string email)
+         {
+             return await _context.User.FirstOrDefaultAsync(u => u.Email == email);
+         }
+         public async Task SaveChangesAsync()
+         {
+             await _context.SaveChangesAsync();
+         }
+         public async Task<List<User>> GetAllUsersAsync()
+         {
+             return await _context.User.ToListAsync();
+         }*/
     }
 }

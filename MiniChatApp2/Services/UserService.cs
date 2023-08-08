@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.Scripting;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
@@ -8,82 +9,134 @@ using System.Text;
 
 namespace MiniChatApp2.Services
 {
-    public class UserService:IUserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-        public UserService(IUserRepository userRepository, IConfiguration configuration)
+        private readonly UserManager<IdentityUser<int>> _userManager;
+
+        public UserService(IUserRepository userRepository, UserManager<IdentityUser<int>> userManager, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _userManager = userManager;
             _configuration = configuration;
         }
 
-        public Task<User> GetUserByEmail(string email)
-        {
-            return _userRepository.GetUserByEmailAsync(email);
-        }
+        /*  public Task<User> GetUserByEmail(string email)
+          {
+              return _userRepository.GetUserByEmailAsync(email);
+          }*/
 
-        public async Task<User> RegisterUserAsync(User model)
+        public async Task<(bool success, object result)> RegisterUserAsync(UserRegistration request)
         {
-            if (await _userRepository.GetUserByEmailAsync(model.Email) != null)
+            // Validate the request data
+            if (!ValidateUserRegistrationRequest(request, out string errorMessage))
             {
-                throw new ArgumentException("Email is already registered.");
+                return (false, new { error = errorMessage });
             }
-            model.Password = HashPassword(model.Password);
 
-            // Create the user object
-            var user = new User
+            // Check if the email is already registered
+            var existingUser = await _userRepository.FindByEmailAsync(request.Email);
+            if (existingUser != null)
             {
-                Name = model.Name,
-                Email = model.Email,
-                Password = model.Password // Store the hashed password in the database.
+                return (false, new { error = "Email is already registered." });
+            }
+
+            // Create a new user
+            var newUser = new IdentityUser<int>
+            {
+                UserName = request.Email,
+                Email = request.Email
             };
 
-            await _userRepository.AddUserAsync(user);
-            await _userRepository.SaveChangesAsync();
+            var result = await _userRepository.CreateAsync(newUser, request.Password);
 
-            return user;
-        }
-        public async Task<LoginResponseDto> LoginAsync(LoginDto model)
-        {
-            var user = await _userRepository.GetUserByEmailAsync(model.Email);
-
-            if (user == null || !VerifyPassword(model.Password, user.Password))
+            if (result.Succeeded)
             {
-                throw new ArgumentException("Invalid Credential");
-            }
-
-            var token = GenerateJwtToken(user.Id, user.Name, user.Email);
-
-            return new LoginResponseDto
-            {
-               
-                Token = token,
-                Profile = new UserProfile
+                // Return the successful registration response
+                return (true, new
                 {
-                    Id = user.Id.ToString(),
-                    Name = user.Name,
-                    Email = user.Email
-                },
-                
-            };
-        }
-
-        public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
-        {
-            var users = await _userRepository.GetAllUsersAsync();
-
-            // Exclude the current user from the list
-            users = users.Where(u => u.Email != currentUserEmail).ToList();
-
-          
-            return users.Select(u => new User
+                    userId = newUser.Id,
+                    name = request.Name,
+                    email = request.Email
+                });
+            }
+            else
             {
-                Id = u.Id,
-                Name = u.Name,
-                Email = u.Email
-            }).ToList();
+                // Return the registration failure response
+                return (false, new { error = "Registration failed due to validation errors." });
+            }
         }
+
+        private bool ValidateUserRegistrationRequest(UserRegistration request, out string errorMessage)
+        {
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                errorMessage = "Email is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                errorMessage = "Name is required.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                errorMessage = "Password is required.";
+                return false;
+            }
+
+            // Additional validation if needed...
+
+            return true;
+        }
+
+
+
+
+
+        //public async Task<LoginResponseDto> LoginAsync(LoginDto model)
+        //{
+        //    var user = await _userManager.FindByEmailAsync(model.Email);
+
+        //    if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+        //    {
+        //        throw new ArgumentException("Invalid credentials.");
+        //    }
+
+        //    var token = GenerateJwtToken(user.Id, user.Name, user.Email);
+
+        //    return new LoginResponseDto
+        //    {
+        //        Token = token,
+        //        Profile = new UserProfile
+        //        {
+        //            Id = user.Id.ToString(),
+        //            Name = user.Name,
+        //            Email = user.Email
+        //        }
+        //    };
+        //}
+
+        /* public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
+         {
+             var users = await _userRepository.GetAllUsersAsync();
+
+             // Exclude the current user from the list
+             users = users.Where(u => u.Email != currentUserEmail).ToList();
+
+
+             return users.Select(u => new User
+             {
+                 Id = u.Id,
+                 Name = u.Name,
+                 Email = u.Email
+             }).ToList();
+         }*/
 
         private string HashPassword(string password)
         {

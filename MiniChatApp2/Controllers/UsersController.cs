@@ -17,6 +17,10 @@ using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
+using Microsoft.Extensions.Logging;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using MiniChatApp2.Services;
+using MiniChatApp2.Repositories;
 
 namespace MiniChatApp2.Controllers
 {
@@ -25,137 +29,166 @@ namespace MiniChatApp2.Controllers
     public class UsersController : ControllerBase
 
     {
+        private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
-
-        private readonly MiniChatApp2Context _context;
+        private readonly ILogger<UsersController> _logger;
+        private readonly RealAppContext _context;
         private readonly string _jwtSecretKey = "your_secret_key_here";
         private readonly IConfiguration _configuration;
-        public UsersController(MiniChatApp2Context context, IConfiguration configuration, IUserService userService)
+        public UsersController(RealAppContext context, IConfiguration configuration, IUserService userService, ILogger<UsersController> logger,IUserRepository userRepository)
         {
             _context = context;
             _configuration = configuration;
             _userService = userService;
+            _logger = logger;
+            _userRepository = userRepository;
         }
 
-      
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            try
-            {
-                // Retrieve the current user's email from the authentication context
-                string currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
 
-                var users = await _userService.GetAllUserAsync(currentUserEmail);
-                return Ok(new { users });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
+        /* [HttpGet]
+       [Authorize]
+       public async Task<IActionResult> GetAllUsers()
+       {
+           try
+           {
+               // Retrieve the current user's email from the authentication context
+               string currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+
+               var users = await _userService.GetAllUserAsync(currentUserEmail);
+               return Ok(new { users });
+           }
+           catch (Exception ex)
+           {
+               return BadRequest(new { error = ex.Message });
+           }
+       }*/
 
         // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
-        {
-            if (_context.User == null)
-            {
-                return NotFound();
-            }
-            var user = await _context.User.FindAsync(id);
+        /*  [HttpGet("{id}")]
+          public async Task<ActionResult<User>> GetUser(int id)
+          {
+              if (_context.User == null)
+              {
+                  return NotFound();
+              }
+              var user = await _context.User.FindAsync(id);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+              if (user == null)
+              {
+                  return NotFound();
+              }
 
-            return user;
-        }
+              return user;
+          }*/
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
-        {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
+        /*  [HttpPut("{id}")]
+          public async Task<IActionResult> PutUser(int id, User user)
+          {
+              if (id != user.Id)
+              {
+                  return BadRequest();
+              }
 
-            _context.Entry(user).State = EntityState.Modified;
+              _context.Entry(user).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+              try
+              {
+                  await _context.SaveChangesAsync();
+              }
+              catch (DbUpdateConcurrencyException)
+              {
+                  if (!UserExists(id))
+                  {
+                      return NotFound();
+                  }
+                  else
+                  {
+                      throw;
+                  }
+              }
 
-            return NoContent();
-        }
+              return NoContent();
+          }
 
-      
 
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            if (_context.User == null)
-            {
-                return NotFound();
-            }
-            var user = await _context.User.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
 
-            _context.User.Remove(user);
-            await _context.SaveChangesAsync();
+          // DELETE: api/Users/5
+        /*  [HttpDelete("{id}")]
+          public async Task<IActionResult> DeleteUser(int id)
+          {
+              if (_context.User == null)
+              {
+                  return NotFound();
+              }
+              var user = await _context.User.FindAsync(id);
+              if (user == null)
+              {
+                  return NotFound();
+              }
 
-            return NoContent();
-        }
+              _context.User.Remove(user);
+              await _context.SaveChangesAsync();
+
+              return NoContent();
+          }*/
+        /*  [HttpPost("register")]
+          public async Task<IActionResult> PostUser(User user)
+          {
+              // Check if the model is valid
+              if (!ModelState.IsValid)
+              {
+                  return BadRequest(new { error = "Registration failed due to validation errors" });
+              }
+
+              var registeredUser = await _userService.RegisterUserAsync(user);
+
+              if (registeredUser != null)
+              {
+                  // Registration successful, return a success response
+                  return Ok(new { message = "Registration successful" });
+              }
+              else
+              {
+                  // Registration failed, return an error response
+                  return BadRequest(new { error = "Failed to register user" });
+              }
+
+              // Check if the email is already registered
+
+          }*/
+
         [HttpPost("register")]
-        public async Task<IActionResult> PostUser(User user)
+        public async Task<IActionResult> Register(UserRegistration request)
         {
-            // Check if the model is valid
-            if (!ModelState.IsValid)
+            var (success, result) = await _userService.RegisterUserAsync(request);
+
+            if (success)
             {
-                return BadRequest(new { error = "Registration failed due to validation errors" });
+                return Ok(result);
             }
-         
-            var res = await _userService.RegisterUserAsync(user);
-
-            return Ok(res);
-
-            // Check if the email is already registered
-          
+            else
+            {
+                return BadRequest(result);
+            }
         }
+
+
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new { error = "Login failed due to validation errors" });
-            }
+        //public async Task<IActionResult> Login(LoginDto model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(new { error = "Login failed due to validation errors" });
+        //    }
 
-            var result = await _userService.LoginAsync(model);
+        //    var result = await _userService.LoginAsync(model);
 
 
-            return Ok(new { token = result.Token, profile = result.Profile });
-        }
+        //    return Ok(new { token = result.Token, profile = result.Profile });
+        //}
 
 
         private string GenerateJwtToken(int id, string name, string email)
@@ -190,10 +223,10 @@ namespace MiniChatApp2.Controllers
                 return Convert.ToBase64String(hashedBytes);
             }
         }
-        private bool UserExists(int id)
+      /*  private bool UserExists(int id)
         {
             return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-      
+      */
     }
 }
