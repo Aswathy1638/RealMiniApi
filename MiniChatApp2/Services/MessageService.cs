@@ -27,14 +27,12 @@ namespace MiniChatApp2.Services
             return messageResponse;
         }
 
-        //public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, int editorId)
-        //{
-        //    // Additional validation and business logic can be implemented here
+        public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, string editorId)
+        {
+            var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
 
-        //    var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
-
-        //    return editedMessage;
-        //}
+            return editedMessage;
+        }
 
         //public async Task<IActionResult> DeleteMessageAsync(int messageId)
         //{
