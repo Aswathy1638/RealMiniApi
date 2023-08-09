@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.Scripting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol.Plugins;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,12 +18,16 @@ namespace MiniChatApp2.Services
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        IHttpClientFactory _httpClientFactory;
 
-        public UserService(IUserRepository userRepository, UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public UserService(SignInManager<IdentityUser> signInManager,IHttpClientFactory httpClientFactory, IUserRepository userRepository, UserManager<IdentityUser> userManager, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _userManager = userManager;
             _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
+            _signInManager = signInManager;
         }
 
         /*  public Task<User> GetUserByEmail(string email)
@@ -91,9 +98,7 @@ namespace MiniChatApp2.Services
                 return false;
             }
 
-            // Additional validation if needed...
-
-            return true;
+         return true;
         }
 
 
@@ -109,7 +114,8 @@ namespace MiniChatApp2.Services
                 throw new ArgumentException("Invalid credentials.");
             }
 
-            var token = GenerateJwtToken(user.Id, user.UserName, user.Email);
+            var token = GenerateJwtToken(user);
+            await _userManager.AddLoginAsync(user, new UserLoginInfo("PostMan", user.Id, "PostMan"));
 
             return new LoginResponseDto
             {
@@ -137,7 +143,55 @@ namespace MiniChatApp2.Services
         //         Email = u.Email
         //     }).ToList();
         // }
+        public async Task<LoginResponseDto> VerifyTokenAsync(string tokenId)
+        {
+            GoogleJsonWebSignature.ValidationSettings settings = new GoogleJsonWebSignature.ValidationSettings();
+            settings.Audience = new[] { "741527376978-3ednvlp0982shao300v82o9umag8re9n.apps.googleusercontent.com" }; // Replace with your actual Google Client ID
 
+            try
+            {
+                GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(tokenId, settings);
+
+                if (payload.EmailVerified)
+                {
+                    IdentityUser user = await _userManager.FindByEmailAsync(payload.Email);
+
+                    if (user == null)
+                    {
+                        user = new IdentityUser
+                        {
+                            UserName = payload.Email,
+                            Email = payload.Email,
+                            EmailConfirmed = true 
+                        };
+
+                        await _userManager.CreateAsync(user);
+                    }
+                    string jwtToken = GenerateJwtToken(user);
+                    await _userManager.AddLoginAsync(user, new UserLoginInfo("Google", payload.Subject, "Google"));
+
+                    var loginResponse = new LoginResponseDto
+                    {
+                        Token = jwtToken,
+                        Profile = new UserProfile
+                        {
+                            Id = user.Id,
+                            Name = user.UserName,
+                            Email = user.Email
+                        }
+                    };
+
+                    return loginResponse;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle token validation exception
+                throw new Exception("Invalid token: " + ex.Message);
+            }
+
+            return null;
+        }
         public async Task<List<UserProfile>> GetAllUsersAsync(string currentUserEmail)
         {
             return await _userRepository.GetAllUsersAsync(currentUserEmail);
@@ -150,32 +204,51 @@ namespace MiniChatApp2.Services
             return hash;
         }
 
-        private string GenerateJwtToken(string id, string name, string email)
+
+        //private string GenerateJwtToken(string id, string name, string email)
+        //{
+        //    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+        //    {
+        //        throw new ArgumentNullException("name and email cannot be null or empty.");
+        //    }
+
+        //    var claims = new[] {
+        //        new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+        //        new Claim(ClaimTypes.Name, name),
+        //        new Claim(ClaimTypes.Email, email)
+        //    };
+
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var token = new JwtSecurityToken(
+        //        _configuration["Jwt:Issuer"],
+        //        _configuration["Jwt:Audience"],
+        //        claims,
+        //        expires: DateTime.UtcNow.AddMinutes(10),
+        //        signingCredentials: signIn);
+
+
+        //    string Token = new JwtSecurityTokenHandler().WriteToken(token);
+
+        //    return Token;
+        //}
+        private string GenerateJwtToken(IdentityUser user)
         {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                throw new ArgumentNullException("name and email cannot be null or empty.");
-            }
-
-            var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Email, email)
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Email, user.Email)
+                }),
+                Expires = DateTime.UtcNow.AddDays(1), // Token expiration time
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddMinutes(10),
-                signingCredentials: signIn);
-
-
-            string Token = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Token;
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
         private bool VerifyPassword(string password, string passwordHash)
         {

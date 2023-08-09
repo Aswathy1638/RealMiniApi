@@ -21,6 +21,17 @@ namespace MiniChatApp2
             builder.Services.AddDbContext<RealAppContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("RealAppContext") ));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            }).AddGoogle(options =>
+            {
+                 options.ClientId = "741527376978-3ednvlp0982shao300v82o9umag8re9n.apps.googleusercontent.com";
+                 options.ClientSecret = "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";
+             });
+
+
 
             builder.Services.AddScoped<UserManager<IdentityUser>>();
             builder.Services.AddScoped<SignInManager<IdentityUser>>();
@@ -38,6 +49,7 @@ namespace MiniChatApp2
              .AddDefaultTokenProviders()
              .AddUserManager<UserManager<IdentityUser>>(); ;
 
+            builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
