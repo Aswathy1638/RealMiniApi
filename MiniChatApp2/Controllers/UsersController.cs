@@ -64,7 +64,7 @@ namespace MiniChatApp2.Controllers
                 string currentUserEmail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
 
                 var users = await _userService.GetAllUsersAsync(currentUserEmail);
-                return Ok(new { users });
+                return Ok( users );
             }
             catch (Exception ex)
             {
@@ -123,33 +123,33 @@ namespace MiniChatApp2.Controllers
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(string id, string name, string email)
-        {
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
-            {
-                throw new ArgumentNullException("name and email cannot be null or empty.");
-            }
+        //private string GenerateJwtToken(string id, string name, string email)
+        //{
+        //    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+        //    {
+        //        throw new ArgumentNullException("name and email cannot be null or empty.");
+        //    }
 
-            var claims = new[] {
-                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Email, email)
-            };
+        //    var claims = new[] {
+        //        new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+        //        new Claim(ClaimTypes.Name, name),
+        //        new Claim(ClaimTypes.Email, email)
+        //    };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.UtcNow.AddMinutes(10),
-                signingCredentials: signIn);
+        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        //    var token = new JwtSecurityToken(
+        //        _configuration["Jwt:Issuer"],
+        //        _configuration["Jwt:Audience"],
+        //        claims,
+        //        expires: DateTime.UtcNow.AddMinutes(10),
+        //        signingCredentials: signIn);
 
 
-            string Token = new JwtSecurityTokenHandler().WriteToken(token);
+        //    string Token = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return Token;
-        }
+        //    return Token;
+        //}
 
         //private string GenerateJwtToken(int id, string name, string email)
         //{

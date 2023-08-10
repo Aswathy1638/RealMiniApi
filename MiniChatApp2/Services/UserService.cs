@@ -114,7 +114,7 @@ namespace MiniChatApp2.Services
                 throw new ArgumentException("Invalid credentials.");
             }
 
-            var token = GenerateJwtToken(user);
+            var token = GenerateJwtToken(user.Id,user.UserName,user.Email);
             await _userManager.AddLoginAsync(user, new UserLoginInfo("PostMan", user.Id, "PostMan"));
 
             return new LoginResponseDto
@@ -126,7 +126,9 @@ namespace MiniChatApp2.Services
                     Email = user.Email
                 }
             };
+
         }
+
 
         //public async Task<List<User>> GetAllUserAsync(string currentUserEmail)
         // {
@@ -160,7 +162,7 @@ namespace MiniChatApp2.Services
                     {
                         user = new IdentityUser
                         {
-                            UserName = payload.Email,
+                            UserName = payload.GivenName,
                             Email = payload.Email,
                             EmailConfirmed = true 
                         };
@@ -205,33 +207,31 @@ namespace MiniChatApp2.Services
         }
 
 
-        //private string GenerateJwtToken(string id, string name, string email)
-        //{
-        //    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
-        //    {
-        //        throw new ArgumentNullException("name and email cannot be null or empty.");
-        //    }
-
-        //    var claims = new[] {
-        //        new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-        //        new Claim(ClaimTypes.Name, name),
-        //        new Claim(ClaimTypes.Email, email)
-        //    };
-
-        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        //    var token = new JwtSecurityToken(
-        //        _configuration["Jwt:Issuer"],
-        //        _configuration["Jwt:Audience"],
-        //        claims,
-        //        expires: DateTime.UtcNow.AddMinutes(10),
-        //        signingCredentials: signIn);
+        private string GenerateJwtToken(string id, string name, string email)
+        {
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
+            {
+                throw new ArgumentNullException("name and email cannot be null or empty.");
+            }
+                    var claims = new[] {
+                new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+                new Claim(ClaimTypes.Name, name),
+                new Claim(ClaimTypes.Email, email)
+            };
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+            var signin = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
+                claims,
+                expires: DateTime.UtcNow.AddDays(10),
+                signingCredentials: signin);
 
 
-        //    string Token = new JwtSecurityTokenHandler().WriteToken(token);
+            string Token = new JwtSecurityTokenHandler().WriteToken(token);
 
-        //    return Token;
-        //}
+            return Token;
+        }
         private string GenerateJwtToken(IdentityUser user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
