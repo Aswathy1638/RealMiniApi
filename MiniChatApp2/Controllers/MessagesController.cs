@@ -32,15 +32,15 @@ namespace MiniChatApp2.Controllers
 
 
 
-        // GET: api/Messages
-        //[HttpGet]
-        //[Authorize]
-        //public async Task<IActionResult> GetConversationHistory(int userId, DateTime? before, int count = 20, string sort = "asc")
-        //{
-        //    var result = await _messageService.GetConversationHistoryAsync(userId, before, count, sort);
+        //GET: api/Messages
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetConversationHistory(string userId, DateTime? before, int count = 20, string sort = "asc")
+        {
+            var result = await _messageService.GetConversationHistoryAsync(userId, before, count, sort);
 
-        //    return result;
-        //}
+            return result;
+        }
 
         // GET: api/Messages/5
 

@@ -102,26 +102,26 @@ namespace MiniChatApp2.Repositories
             }
         }
 
-        //public async Task<List<Message>> GetConversationHistoryAsync(int userId, DateTime? before, int count, string sort)
-        //{
-        //    // Retrieve conversation history based on the provided parameters
-        //    var query = _dbContext.Message
-        //        .Where(m => (m.senderId == userId || m.receiverId == userId));
+       public async Task<List<Message>> GetConversationHistoryAsync(string userId, DateTime? before, int count, string sort)
+       {
+       // Retrieve conversation history based on the provided parameters
+           var query = _dbContext.Message
+               .Where(m => (m.senderId == userId || m.receiverId == userId));
 
-        //    if (before.HasValue)
-        //    {
-        //        query = query.Where(m => m.Timestamp < before);
-        //    }
+           if (before.HasValue)
+           {
+               query = query.Where(m => m.Timestamp < before);
+           }
 
-        //    query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
+           query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
 
-        //    if (count > 0)
-        //    {
-        //        query = query.Take(count);
-        //    }
+           if (count > 0)
+           {
+               query = query.Take(count);
+           }
 
-        //    return await query.ToListAsync();
-        //}
+           return await query.ToListAsync();
+       }
 
     }
 }
