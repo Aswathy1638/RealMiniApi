@@ -33,13 +33,21 @@ namespace MiniChatApp2.Controllers
 
 
         //GET: api/Messages
-        [HttpGet]
+        [HttpGet("{id}")]
         [Authorize]
-        public async Task<IActionResult> GetConversationHistory(string userId, DateTime? before, int count = 20, string sort = "asc")
+        public async Task<IActionResult> GetConversationHistory( string id, DateTime? before, int count = 20, string sort = "asc")
         {
-            var result = await _messageService.GetConversationHistoryAsync(userId, before, count, sort);
 
-            return result;
+           
+
+            var result = await _messageService.GetConversationHistoryAsync(id, before, count, sort);
+            if (result == null || !result.Any())
+            {
+                return NotFound(new { message = "User or conversation not found" });
+            }
+
+            return Ok(result);
+            
         }
 
         // GET: api/Messages/5

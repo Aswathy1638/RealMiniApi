@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
-
 using System.Security.Claims;
 
 namespace MiniChatApp2.Services
@@ -56,19 +55,33 @@ namespace MiniChatApp2.Services
 
             return new OkObjectResult(new { message = "Message deleted successfully" });
         }
-        public async Task<IActionResult> GetConversationHistoryAsync(string userId, DateTime? before, int count, string sort)
+
+        public async Task<List<Message>> GetConversationHistoryAsync(string receiver, DateTime? before, int count = 20, string sort = "asc")
         {
+            var currentUserId= GetCurrentUserId();
             // Fetch the conversation history from the repository asynchronously
-            var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);
-                // Check if the conversation exists
+            var conversation = await _messageRepository.GetConversationHistoryAsync(currentUserId,receiver, before, count, sort);
+            // Check if the conversation exists
             if (conversation == null)
             {
-                return new NotFoundObjectResult(new { error = "User or conversation not found" });
+                return null;
             }
 
-         // Return the conversation history
-           return new OkObjectResult(new { messages = conversation });
-       }
+            // Return the conversation history
+            return conversation;
+            //var currentUserId = GetCurrentUserId();
+
+
+            //var messages = await _messageRepository.GetConversationHistoryAsync(currentUserId, receiver, before, count, sort);
+
+            //if (messages == null || messages.Count == 0)
+            //{
+            //    return null;
+            //}
+
+            //return  messages ;
+        }
+
         private string GetCurrentUserId()
         {
             // Retrieve the user ID from the ClaimsPrincipal (User) available in the controller
@@ -78,3 +91,17 @@ namespace MiniChatApp2.Services
     }
 }
 
+//// Fetch the conversation history from the repository asynchronously
+//var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);
+//// Check if the conversation exists
+//if (conversation == null)
+//{
+//    return new NotFoundObjectResult(new { error = "User or conversation not found" });
+//}
+
+//// Return the conversation history
+//return new OkObjectResult(new { messages = conversation });
+       // public async Task<IActionResult> GetConversationHistoryAsync(string userId, DateTime? before, int count, string sort)
+       // {
+          
+       //}

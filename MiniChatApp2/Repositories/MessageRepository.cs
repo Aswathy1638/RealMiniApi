@@ -4,6 +4,7 @@ using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using System.Linq.Expressions;
+using System.Security.Claims;
 
 namespace MiniChatApp2.Repositories
 {
@@ -102,26 +103,49 @@ namespace MiniChatApp2.Repositories
             }
         }
 
-       public async Task<List<Message>> GetConversationHistoryAsync(string userId, DateTime? before, int count, string sort)
-       {
-       // Retrieve conversation history based on the provided parameters
-           var query = _dbContext.Message
-               .Where(m => (m.senderId == userId || m.receiverId == userId));
+        //public async Task<List<Message>> GetConversationHistoryAsync(string currentUser, string receiver, DateTime? before, int count, string sort)
+        //{
+        //     // Retrieve conversation history based on the provided parameters
 
-           if (before.HasValue)
-           {
-               query = query.Where(m => m.Timestamp < before);
-           }
 
-           query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
+        //     var query = _dbContext.Message
+        //        .Where(m => (m.senderId == currentUser || m.receiverId == receiver)||(m.senderId == receiver || m.receiverId == currentUser));
 
-           if (count > 0)
-           {
-               query = query.Take(count);
-           }
+        //    if (before.HasValue)
+        //    {
+        //        query = query.Where(m => m.Timestamp < before);
+        //    }
 
-           return await query.ToListAsync();
-       }
+        //    query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
+
+        //    if (count > 0)
+        //    {
+        //        query = query.Take(count);
+        //    }
+
+        //    return await query.ToListAsync();
+        //}
+
+        public async Task<List<Message>> GetConversationHistoryAsync(string currentUserId,string userId, DateTime? before, int count, string sort)
+        {
+            // Retrieve conversation history based on the provided parameters
+            var query = _dbContext.Message
+                .Where(m => (m.senderId == userId && m.receiverId == currentUserId)|| (m.senderId == currentUserId && m.receiverId == userId));
+
+            if (before.HasValue)
+            {
+                query = query.Where(m => m.Timestamp < before);
+            }
+
+            query = sort == "desc" ? query.OrderByDescending(m => m.Timestamp) : query.OrderBy(m => m.Timestamp);
+
+            if (count > 0)
+            {
+                query = query.Take(count);
+            }
+
+            return await query.ToListAsync();
+        }
 
     }
 }
