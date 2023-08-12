@@ -35,13 +35,17 @@ namespace MiniChatApp2
 
             builder.Services.AddScoped<UserManager<IdentityUser>>();
             builder.Services.AddScoped<SignInManager<IdentityUser>>();
-            // builder.Services.AddScoped<Middleware>();
+            builder.Services.AddScoped<Middleware>();
 
             builder.Services.AddScoped<IUserService, UserService>();
              builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             builder.Services.AddScoped<IMessageRepository, MessageRepository>();
             builder.Services.AddScoped<IMessageService, MessageService>();
+
+            builder.Services.AddScoped<ILogRepository, LogRepository>();
+            builder.Services.AddScoped<ILogService, LogService>();
+
             // Add services to the container.
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -108,7 +112,7 @@ namespace MiniChatApp2
             app.UseAuthentication();
             app.UseAuthorization();
 
-           // app.UseMiddleware<Middleware>();
+           app.UseMiddleware<Middleware>();
             
             app.MapControllers();
 

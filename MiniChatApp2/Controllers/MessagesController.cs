@@ -34,7 +34,7 @@ namespace MiniChatApp2.Controllers
 
         //GET: api/Messages
         [HttpGet("{id}")]
-        [Authorize]
+        
         public async Task<IActionResult> GetConversationHistory( string id, DateTime? before, int count = 20, string sort = "asc")
         {
 
