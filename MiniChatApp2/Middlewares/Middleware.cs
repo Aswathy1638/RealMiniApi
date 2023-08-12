@@ -4,17 +4,17 @@ using System.Security.Claims;
 using System.Text;
 
 namespace MiniChatApp2.Middlewares
-{/*
+{
     public class Middleware : IMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly MiniChatApp2Context _dbcontext;
+        private readonly RealAppContext _dbcontext;
         private readonly ILogger<Middleware> _logger;
         public Middleware(RequestDelegate next)
         {
             _next = next;
         }
-        public Middleware(ILogger<Middleware> logger, MiniChatApp2Context dbcontext)
+        public Middleware(ILogger<Middleware> logger, RealAppContext dbcontext)
         {
             _logger = logger;
             _dbcontext = dbcontext;
@@ -58,6 +58,6 @@ namespace MiniChatApp2.Middlewares
 
                 return requestBody;
             }
-        }*/
+        }
     }
 
