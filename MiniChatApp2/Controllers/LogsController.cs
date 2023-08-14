@@ -30,12 +30,12 @@ namespace MiniChatApp2.Controllers
         {
 
             if (startTime == null)
-                startTime = DateTime.UtcNow.AddMinutes(-5);
+                startTime = DateTime.Now.AddMinutes(-5);
 
             Console.WriteLine(startTime);
 
             if (endTime == null)
-                endTime = DateTime.UtcNow;
+                endTime = DateTime.Now;
             Console.WriteLine(endTime);
 
             if (startTime > endTime)
