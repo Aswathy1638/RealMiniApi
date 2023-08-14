@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using MiniChatApp2.ChatHub;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using System.Security.Claims;
@@ -11,21 +12,25 @@ namespace MiniChatApp2.Services
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IHubContext<ChatHubs> _chatHubContext;
+        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor, IHubContext<ChatHubs> chatHubContext)
         {
             _messageRepository = messageRepository;
             _httpContextAccessor = httpContextAccessor;
+            _chatHubContext = chatHubContext;
         }
 
         public async Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, string senderId)
         {
-            // Additional validation and business logic can be implemented here
-
+         
             var messageResponse = await _messageRepository.SaveMessageAsync(message,senderId);
 
             return messageResponse;
         }
-
+        public async Task SendMessageToSender(string senderId, string message)
+        {
+            await _chatHubContext.Clients.Client(senderId).SendAsync("ReceiveOne", message);
+        }
         public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, string editorId)
         {
             var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
@@ -35,16 +40,16 @@ namespace MiniChatApp2.Services
 
         public async Task<IActionResult> DeleteMessageAsync(int messageId)
         {
-            // Fetch the message by its ID from the repository asynchronously
+        
             var message = await _messageRepository.GetMessageByIdAsync(messageId);
 
-           // Check if the message exists
+          
             if (message == null)
            {
                return new NotFoundObjectResult(new { error = "Message not found" });
             }
 
-           // Check if the current user is the sender of the message (you need to implement authentication)
+     
            if (GetCurrentUserId() != message.senderId.ToString())
            {
                return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
@@ -81,6 +86,15 @@ namespace MiniChatApp2.Services
 
             //return  messages ;
         }
+
+
+
+        public async Task<List<MessageResponseDto>> SearchConversationsAsync(string userId, string query)
+        {
+            return await _messageRepository.SearchConversationsAsync(userId, query);
+        }
+
+
 
         private string GetCurrentUserId()
         {

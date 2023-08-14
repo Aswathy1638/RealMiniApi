@@ -147,5 +147,24 @@ namespace MiniChatApp2.Repositories
             return await query.ToListAsync();
         }
 
+        public async Task<List<MessageResponseDto>> SearchConversationsAsync(string userId, string query)
+        {
+            var conversations = await _dbContext.Message
+                .Where(m => (m.senderId == userId || m.receiverId == userId) && m.Content.Contains(query))
+                .OrderByDescending(m => m.Timestamp)
+                .Select(m => new MessageResponseDto
+                {
+                    MessageId = m.Id,
+                    SenderId = m.senderId,
+                    ReceiverId = m.receiverId,
+                    Content = m.Content,
+                    Timestamp = m.Timestamp
+                })
+                .ToListAsync();
+
+            return conversations;
+        }
+
+
     }
 }
