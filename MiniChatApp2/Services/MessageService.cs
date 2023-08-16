@@ -24,11 +24,14 @@ namespace MiniChatApp2.Services
         {
          
             var messageResponse = await _messageRepository.SaveMessageAsync(message,senderId);
+            await _chatHubContext.Clients.User(senderId).SendAsync("ReceiveOne", message.Content);
+
 
             return messageResponse;
         }
         public async Task SendMessageToSender(string senderId, string message)
         {
+
             await _chatHubContext.Clients.Client(senderId).SendAsync("ReceiveOne", message);
         }
         public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, string editorId)
