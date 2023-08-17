@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
+using System.Collections.Concurrent;
 using System.Security.Claims;
 
 namespace MiniChatApp2.ChatHub
 {
-    public class ChatHubs :Hub
+    public class ChatHubs : Hub
     {
+
+
+
+
         private readonly IMessageService _messageService;
         private Dictionary<string, string> userConnectionMap = new Dictionary<string, string>();
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -21,7 +26,7 @@ namespace MiniChatApp2.ChatHub
         public override async Task OnConnectedAsync()
         {
 
-             var authorizationHeader = Context.GetHttpContext().Request.Headers["Authorization"];
+            var authorizationHeader = Context.GetHttpContext().Request.Headers["Authorization"];
             Console.WriteLine("Authorization Header: " + authorizationHeader);
             var userId = GetCurrentUserId();
             var connectionId = Context.ConnectionId;
@@ -32,7 +37,7 @@ namespace MiniChatApp2.ChatHub
             {
                 userConnectionMap[userId] = connectionId;
                 await Groups.AddToGroupAsync(connectionId, userId);
-              
+
             }
 
             await base.OnConnectedAsync();
@@ -49,7 +54,7 @@ namespace MiniChatApp2.ChatHub
             //  if (userConnectionMap.TryGetValue(receiverId, out var connectionId))
 
             //{
-           // var userId = GetCurrentUserId();
+            // var userId = GetCurrentUserId();
             //var connectionId = Context.ConnectionId;
 
             await Clients.All.SendAsync("ReceiveOne", message);
@@ -59,9 +64,47 @@ namespace MiniChatApp2.ChatHub
         }
         private string GetCurrentUserId()
         {
-            // Retrieve the user ID from the ClaimsPrincipal (User) available in the controller
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
         }
     }
-}
+        //private static readonly ConcurrentDictionary<string, string> ConnectedUsers = new ConcurrentDictionary<string, string>();
+
+        //public override async Task OnConnectedAsync()
+        //{
+        //    var userId = Context.UserIdentifier;
+        //    Console.WriteLine(userId);
+
+        //    var connectionId = Context.ConnectionId;
+
+        //    ConnectedUsers.TryAdd(userId, connectionId);
+
+        //    await base.OnConnectedAsync();
+        //}
+
+        //public override async Task OnDisconnectedAsync(Exception exception)
+        //{
+        //    var userId = Context.UserIdentifier;
+        //    Console.WriteLine(userId);
+
+        //    ConnectedUsers.TryRemove(userId, out _);
+
+        //    await base.OnDisconnectedAsync(exception);
+        //}
+
+        //public async Task SendMessage(string receiverId, string message)
+        //{
+        //    var senderId = Context.UserIdentifier;
+
+        //    if (ConnectedUsers.TryGetValue(receiverId, out string connectionId))
+        //    {
+        //        await Clients.Client(connectionId).SendAsync("ReceiveMessage", senderId, message);
+        //    }
+            
+        //}
+    }
+
+
+
+
+
