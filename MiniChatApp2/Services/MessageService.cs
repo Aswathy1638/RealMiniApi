@@ -13,11 +13,13 @@ namespace MiniChatApp2.Services
         private readonly IMessageRepository _messageRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHubContext<ChatHubs> _chatHubContext;
-        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor, IHubContext<ChatHubs> chatHubContext)
+        private readonly Connections _userConnectionManager;
+        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor, IHubContext<ChatHubs> chatHubContext, Connections userConnectionManager)
         {
             _messageRepository = messageRepository;
             _httpContextAccessor = httpContextAccessor;
             _chatHubContext = chatHubContext;
+            _userConnectionManager = userConnectionManager;
         }
 
         public async Task<MessageResponseDto> SendMessageAsync(MessageResponseDto message, string senderId)
@@ -25,11 +27,20 @@ namespace MiniChatApp2.Services
          
             var messageResponse = await _messageRepository.SaveMessageAsync(message,senderId);
 
-
-
-           await _chatHubContext.Clients.All.SendAsync("ReceiveOne", message);
-
-
+            var receiverConnectionId = await _userConnectionManager.GetConnectionIdAsync(message.ReceiverId);
+            Console.WriteLine("Hiii");
+            Console.WriteLine(receiverConnectionId);
+            if (!string.IsNullOrEmpty(receiverConnectionId))
+            {
+                await _chatHubContext.Clients.All.SendAsync("ReceiveOne", message,senderId);
+            }
+            Console.WriteLine("Hiii");
+            Console.WriteLine(messageResponse.SenderId);
+            Console.WriteLine("Rece");
+            Console.WriteLine(messageResponse.ReceiverId);
+            Console.WriteLine($"cont");
+            Console.WriteLine(messageResponse.Content);
+            
             return messageResponse;
         }
         //public async Task SendMessageToSender(string senderId, string message)
@@ -108,8 +119,16 @@ namespace MiniChatApp2.Services
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
         }
+
+
+
+
+
+
     }
 }
+
+
 
 //// Fetch the conversation history from the repository asynchronously
 //var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);

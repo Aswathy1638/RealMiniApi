@@ -54,6 +54,12 @@ namespace MiniChatApp2.Repositories
                 Content = messageEntity.Content,
                 Timestamp = messageEntity.Timestamp,
             };
+            Console.WriteLine("Hiii");
+            Console.WriteLine(messageResponse.SenderId);
+            Console.WriteLine("Rece");
+            Console.WriteLine(messageResponse.ReceiverId);
+            Console.WriteLine($"cont");
+            Console.WriteLine(messageResponse.Content);
 
             return messageResponse;
         }

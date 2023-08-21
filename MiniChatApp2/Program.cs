@@ -47,6 +47,8 @@ namespace MiniChatApp2
             builder.Services.AddScoped<ILogRepository, LogRepository>();
             builder.Services.AddScoped<ILogService, LogService>();
 
+            builder.Services.AddScoped<Connections>();
+
             // Add services to the container.
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
