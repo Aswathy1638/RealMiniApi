@@ -9,6 +9,7 @@ using MiniChatApp2.Middlewares;
 using MiniChatApp2.Model;
 using MiniChatApp2.Repositories;
 using MiniChatApp2.Services;
+using MiniChatApp2.ChatHub;
 using System.Text;
 
 namespace MiniChatApp2
@@ -46,6 +47,8 @@ namespace MiniChatApp2
             builder.Services.AddScoped<ILogRepository, LogRepository>();
             builder.Services.AddScoped<ILogService, LogService>();
 
+            builder.Services.AddScoped<Connections>();
+
             // Add services to the container.
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -56,6 +59,7 @@ namespace MiniChatApp2
             builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
+            builder.Services.AddSignalR();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -94,8 +98,9 @@ namespace MiniChatApp2
                 app.UseDeveloperExceptionPage();
                 app.UseMigrationsEndPoint();
             }
-            app.UseCors(builder => builder.AllowAnyOrigin().
+            app.UseCors(builder => builder.WithOrigins("http://localhost:4200").
             AllowAnyMethod().
+           AllowCredentials().
             AllowAnyHeader());
 
             using (var scope = app.Services.CreateScope())
@@ -113,8 +118,12 @@ namespace MiniChatApp2
             app.UseAuthorization();
 
            app.UseMiddleware<Middleware>();
-            
             app.MapControllers();
+            
+            app.MapHub<ChatHubs>("/chathub");
+               
+           
+
 
             app.Run();
         }

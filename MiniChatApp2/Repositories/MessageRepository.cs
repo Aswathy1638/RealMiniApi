@@ -19,7 +19,7 @@ namespace MiniChatApp2.Repositories
             _userManager = userManager;
         }
 
-        public async Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, string senderId)
+        public async Task<MessageResponseDto> SaveMessageAsync(MessageResponseDto message, string senderId)
         {
             // Check if the sender user exists
             var senderUser = await _userManager.FindByIdAsync(senderId);
@@ -29,7 +29,7 @@ namespace MiniChatApp2.Repositories
             }
 
             // Check if the receiver user exists
-            var receiverUser = await _userManager.FindByIdAsync(message.receiverId);
+            var receiverUser = await _userManager.FindByIdAsync(message.ReceiverId);
             if (receiverUser == null)
             {
                 return null;
@@ -38,7 +38,7 @@ namespace MiniChatApp2.Repositories
             var messageEntity = new Message
             {
                 senderId =senderId,
-                receiverId = message.receiverId,
+                receiverId = message.ReceiverId,
                 Content = message.Content,
                 Timestamp = DateTime.Now
             };
@@ -54,6 +54,12 @@ namespace MiniChatApp2.Repositories
                 Content = messageEntity.Content,
                 Timestamp = messageEntity.Timestamp,
             };
+            Console.WriteLine("Hiii");
+            Console.WriteLine(messageResponse.SenderId);
+            Console.WriteLine("Rece");
+            Console.WriteLine(messageResponse.ReceiverId);
+            Console.WriteLine($"cont");
+            Console.WriteLine(messageResponse.Content);
 
             return messageResponse;
         }
@@ -146,6 +152,25 @@ namespace MiniChatApp2.Repositories
 
             return await query.ToListAsync();
         }
+
+        public async Task<List<MessageResponseDto>> SearchConversationsAsync(string userId, string query)
+        {
+            var conversations = await _dbContext.Message
+                .Where(m => (m.senderId == userId || m.receiverId == userId) && m.Content.Contains(query))
+                .OrderByDescending(m => m.Timestamp)
+                .Select(m => new MessageResponseDto
+                {
+                    MessageId = m.Id,
+                    SenderId = m.senderId,
+                    ReceiverId = m.receiverId,
+                    Content = m.Content,
+                    Timestamp = m.Timestamp
+                })
+                .ToListAsync();
+
+            return conversations;
+        }
+
 
     }
 }

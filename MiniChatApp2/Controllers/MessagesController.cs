@@ -22,6 +22,7 @@ namespace MiniChatApp2.Controllers
         private readonly IMessageService _messageService;
         private readonly RealAppContext _context;
         private static readonly List<Message> _messages = new List<Message>();
+        
 
         public MessagesController(IMessageService messageService, RealAppContext context)
         {
@@ -136,7 +137,7 @@ namespace MiniChatApp2.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<MessageResponseDto>> PostMessage(MessageCreateDto message)
+        public async Task<ActionResult<MessageResponseDto>> PostMessage(MessageResponseDto message)
         {
             if (!ModelState.IsValid)
             {
@@ -159,7 +160,21 @@ namespace MiniChatApp2.Controllers
         }
 
 
+         [HttpGet("search")]
+        public async Task<IActionResult> SearchConversations(string query)
+        {
+            try
+            {
+                var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var conversations = await _messageService.SearchConversationsAsync(currentUserId, query);
 
+                return Ok(conversations);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
 
 
 

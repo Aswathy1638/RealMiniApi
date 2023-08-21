@@ -122,6 +122,7 @@ namespace MiniChatApp2.Services
                 Token = token,
                 Profile = new UserProfile
                 {
+                    Id=user.Id,
                     Name = user.UserName,
                     Email = user.Email
                 }

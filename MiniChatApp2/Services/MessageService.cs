@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using MiniChatApp2.ChatHub;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using System.Security.Claims;
@@ -11,21 +12,42 @@ namespace MiniChatApp2.Services
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor)
+        private readonly IHubContext<ChatHubs> _chatHubContext;
+        private readonly Connections _userConnectionManager;
+        public MessageService(IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor, IHubContext<ChatHubs> chatHubContext, Connections userConnectionManager)
         {
             _messageRepository = messageRepository;
             _httpContextAccessor = httpContextAccessor;
+            _chatHubContext = chatHubContext;
+            _userConnectionManager = userConnectionManager;
         }
 
-        public async Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, string senderId)
+        public async Task<MessageResponseDto> SendMessageAsync(MessageResponseDto message, string senderId)
         {
-            // Additional validation and business logic can be implemented here
-
+         
             var messageResponse = await _messageRepository.SaveMessageAsync(message,senderId);
 
+            var receiverConnectionId = await _userConnectionManager.GetConnectionIdAsync(message.ReceiverId);
+            Console.WriteLine("Hiii");
+            Console.WriteLine(receiverConnectionId);
+            if (!string.IsNullOrEmpty(receiverConnectionId))
+            {
+                await _chatHubContext.Clients.All.SendAsync("ReceiveOne", message,senderId);
+            }
+            Console.WriteLine("Hiii");
+            Console.WriteLine(messageResponse.SenderId);
+            Console.WriteLine("Rece");
+            Console.WriteLine(messageResponse.ReceiverId);
+            Console.WriteLine($"cont");
+            Console.WriteLine(messageResponse.Content);
+            
             return messageResponse;
         }
+        //public async Task SendMessageToSender(string senderId, string message)
+        //{
 
+        //    await _chatHubContext.Clients.All.SendAsync("ReceiveOne", message);
+        //}
         public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, string editorId)
         {
             var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
@@ -35,16 +57,16 @@ namespace MiniChatApp2.Services
 
         public async Task<IActionResult> DeleteMessageAsync(int messageId)
         {
-            // Fetch the message by its ID from the repository asynchronously
+        
             var message = await _messageRepository.GetMessageByIdAsync(messageId);
 
-           // Check if the message exists
+          
             if (message == null)
            {
                return new NotFoundObjectResult(new { error = "Message not found" });
             }
 
-           // Check if the current user is the sender of the message (you need to implement authentication)
+     
            if (GetCurrentUserId() != message.senderId.ToString())
            {
                return new UnauthorizedObjectResult(new { error = "You are not authorized to delete this message" });
@@ -82,14 +104,31 @@ namespace MiniChatApp2.Services
             //return  messages ;
         }
 
+
+
+        public async Task<List<MessageResponseDto>> SearchConversationsAsync(string userId, string query)
+        {
+            return await _messageRepository.SearchConversationsAsync(userId, query);
+        }
+
+
+
         private string GetCurrentUserId()
         {
             // Retrieve the user ID from the ClaimsPrincipal (User) available in the controller
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
         }
+
+
+
+
+
+
     }
 }
+
+
 
 //// Fetch the conversation history from the repository asynchronously
 //var conversation = await _messageRepository.GetConversationHistoryAsync(userId, before, count, sort);
