@@ -19,7 +19,7 @@ namespace MiniChatApp2.Repositories
             _userManager = userManager;
         }
 
-        public async Task<MessageResponseDto> SaveMessageAsync(MessageCreateDto message, string senderId)
+        public async Task<MessageResponseDto> SaveMessageAsync(MessageResponseDto message, string senderId)
         {
             // Check if the sender user exists
             var senderUser = await _userManager.FindByIdAsync(senderId);
@@ -29,7 +29,7 @@ namespace MiniChatApp2.Repositories
             }
 
             // Check if the receiver user exists
-            var receiverUser = await _userManager.FindByIdAsync(message.receiverId);
+            var receiverUser = await _userManager.FindByIdAsync(message.ReceiverId);
             if (receiverUser == null)
             {
                 return null;
@@ -38,7 +38,7 @@ namespace MiniChatApp2.Repositories
             var messageEntity = new Message
             {
                 senderId =senderId,
-                receiverId = message.receiverId,
+                receiverId = message.ReceiverId,
                 Content = message.Content,
                 Timestamp = DateTime.Now
             };

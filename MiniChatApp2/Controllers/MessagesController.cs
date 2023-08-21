@@ -137,7 +137,7 @@ namespace MiniChatApp2.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<MessageResponseDto>> PostMessage(MessageCreateDto message)
+        public async Task<ActionResult<MessageResponseDto>> PostMessage(MessageResponseDto message)
         {
             if (!ModelState.IsValid)
             {

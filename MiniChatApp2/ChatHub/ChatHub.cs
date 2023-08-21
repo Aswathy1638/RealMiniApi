@@ -54,10 +54,13 @@ namespace MiniChatApp2.ChatHub
             //  if (userConnectionMap.TryGetValue(receiverId, out var connectionId))
 
             //{
-            // var userId = GetCurrentUserId();
-            //var connectionId = Context.ConnectionId;
+             var userId = GetCurrentUserId();
+            var connectionId = Context.ConnectionId;
+
 
             await Clients.All.SendAsync("ReceiveOne", message);
+
+            Console.WriteLine("Completed");
             // await Clients.Client(connectionId).SendAsync("ReceiveOne", message);
             //}
 

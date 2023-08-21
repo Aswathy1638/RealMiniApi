@@ -5,7 +5,7 @@ namespace MiniChatApp2.Interfaces
 {
     public interface IMessageService
     {
-        Task<MessageResponseDto> SendMessageAsync(MessageCreateDto message, string senderId);
+        Task<MessageResponseDto> SendMessageAsync(MessageResponseDto message, string senderId);
         Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, string editorId);
         Task<IActionResult> DeleteMessageAsync(int messageId);
         Task<List<MessageResponseDto>> SearchConversationsAsync(string userId, string query);
