@@ -51,6 +51,13 @@ namespace MiniChatApp2.Services
         public async Task<MessageResponseDto> EditMessageAsync(int messageId, MessageEditDto message, string editorId)
         {
             var editedMessage = await _messageRepository.EditMessageAsync(messageId, message, editorId);
+            if (editedMessage != null)
+            { 
+
+                await _chatHubContext.Clients.All.SendAsync("MessageEdited", editedMessage, editorId);
+
+            }
+
 
             return editedMessage;
         }

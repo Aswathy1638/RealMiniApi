@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Model;
 using NuGet.Protocol.Plugins;
@@ -82,6 +83,16 @@ namespace MiniChatApp2.ChatHub
             //}
 
         }
+
+        public async Task EditMessage(int messageId,MessageEditDto editedMessage, string editorId)
+        {
+            // Process edited message and notify clients
+           
+            var edit = _messageService. EditMessageAsync(messageId,editedMessage, editorId);
+            await Clients.All.SendAsync("MessageEdited", editedMessage, editorId);
+        }
+
+
         //private string GetReceiverConnectionId(string receiverId)
         //{
         //    if (_userConnectionManager.TryGetConnectionId(receiverId, out var connectionId))
