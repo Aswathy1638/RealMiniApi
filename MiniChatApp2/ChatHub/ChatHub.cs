@@ -91,9 +91,14 @@ namespace MiniChatApp2.ChatHub
             var edit = _messageService. EditMessageAsync(messageId,editedMessage, editorId);
             await Clients.All.SendAsync("MessageEdited", editedMessage, editorId);
         }
+        public async Task DeleteMessage(int messageId)
+        {
+            // Process edited message and notify clients
 
-
-        //private string GetReceiverConnectionId(string receiverId)
+            var edit = _messageService.DeleteMessageAsync(messageId);
+            await Clients.All.SendAsync("MessageDeleted", messageId);
+        }
+              //private string GetReceiverConnectionId(string receiverId)
         //{
         //    if (_userConnectionManager.TryGetConnectionId(receiverId, out var connectionId))
 

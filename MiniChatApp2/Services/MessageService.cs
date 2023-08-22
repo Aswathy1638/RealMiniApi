@@ -81,6 +81,7 @@ namespace MiniChatApp2.Services
 
            // Delete the message and save changes
           await _messageRepository.DeleteMessageAsync(messageId);
+            await _chatHubContext.Clients.All.SendAsync("MessageDeleted",messageId);
 
             return new OkObjectResult(new { message = "Message deleted successfully" });
         }
