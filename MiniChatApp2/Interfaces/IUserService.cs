@@ -9,12 +9,8 @@ namespace MiniChatApp2.Interfaces
     {
         Task<(bool success, object result)> RegisterUserAsync(UserRegistration request);
         Task<LoginResponseDto> VerifyTokenAsync(string tokenId);
-        //  Task<User> GetUserByEmail(string email);
-        //Task<User> RegisterUserAsync(User user, string password);
         Task<LoginResponseDto> LoginAsync(LoginDto model);
         Task<List<UserProfile>> GetAllUsersAsync(string currentUserEmail);
 
-        //  Task<User> RegisterUserAsync(User user);
-        //  Task<List<User>> GetAllUserAsync(string currentUserEmail);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace MiniChatApp2.Model
+namespace MiniChatApp2.Services
 {
     public class Connections
     {

@@ -37,30 +37,6 @@ namespace MiniChatApp2.Repositories
 
             return users;
         }
-        //public async Task<User> AddUserAsync(User user)
-        //  {
-        //      var result = await _userManager.CreateAsync(user, user.Password);
-
-        //      if (result.Succeeded)
-        //      {
-        //          return user;
-        //      }
-
-        //      return null;
-        //  }
-
-
-        /* public async Task<User> GetUserByEmailAsync(string email)
-         {
-             return await _context.User.FirstOrDefaultAsync(u => u.Email == email);
-         }
-         public async Task SaveChangesAsync()
-         {
-             await _context.SaveChangesAsync();
-         }
-         public async Task<List<User>> GetAllUsersAsync()
-         {
-             return await _context.User.ToListAsync();
-         }*/
+        
     }
 }

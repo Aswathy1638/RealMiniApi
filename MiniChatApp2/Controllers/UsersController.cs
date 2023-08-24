@@ -107,12 +107,7 @@ namespace MiniChatApp2.Controllers
         public async Task<ActionResult> SocialLogin(TokenModel token)
         {
             Console.WriteLine(token.id);
-            //Console.WriteLine($"Received TokenModel: id = {token.id}");
-
-            //string requestBody = JsonConvert.SerializeObject(token);
-            //Console.WriteLine("Request Body: " + requestBody);
-            //Console.WriteLine(token);
-            //Console.WriteLine("FGkitiouyui");
+            
             var user = await _userService.VerifyTokenAsync(token.id);
 
             if (user != null)
@@ -123,70 +118,5 @@ namespace MiniChatApp2.Controllers
             return Unauthorized();
         }
 
-        //private string GenerateJwtToken(string id, string name, string email)
-        //{
-        //    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email))
-        //    {
-        //        throw new ArgumentNullException("name and email cannot be null or empty.");
-        //    }
-
-        //    var claims = new[] {
-        //        new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-        //        new Claim(ClaimTypes.Name, name),
-        //        new Claim(ClaimTypes.Email, email)
-        //    };
-
-        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        //    var token = new JwtSecurityToken(
-        //        _configuration["Jwt:Issuer"],
-        //        _configuration["Jwt:Audience"],
-        //        claims,
-        //        expires: DateTime.UtcNow.AddMinutes(10),
-        //        signingCredentials: signIn);
-
-
-        //    string Token = new JwtSecurityTokenHandler().WriteToken(token);
-
-        //    return Token;
-        //}
-
-        //private string GenerateJwtToken(int id, string name, string email)
-        //{
-        //    var claims = new[] {
-        //        new Claim(ClaimTypes.NameIdentifier, id.ToString()),
-        //        new Claim(ClaimTypes.Name, name),
-        //        new Claim(ClaimTypes.Email, email)
-        //    };
-
-        //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        //    var token = new JwtSecurityToken(
-        //        _configuration["Jwt:Issuer"],
-        //        _configuration["Jwt:Audience"],
-        //        claims,
-        //        expires: DateTime.UtcNow.AddMinutes(10),
-        //        signingCredentials: signIn);
-
-
-        //    string Token = new JwtSecurityTokenHandler().WriteToken(token);
-
-        //    return Token;
-        //}
-
-        //private string HashPassword(string password)
-        //{
-        //    // Use a secure hashing algorithm, such as SHA-256 or bcrypt.
-        //    using (var sha256 = SHA256.Create())
-        //    {
-        //        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        //        return Convert.ToBase64String(hashedBytes);
-        //    }
-        //}
-        /*  private bool UserExists(int id)
-          {
-              return (_context.User?.Any(e => e.Id == id)).GetValueOrDefault();
-          }
-        */
     }
 }

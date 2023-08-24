@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using MiniChatApp2.Data;
 using MiniChatApp2.Interfaces;
 using MiniChatApp2.Middlewares;
-using MiniChatApp2.Model;
 using MiniChatApp2.Repositories;
 using MiniChatApp2.Services;
 using MiniChatApp2.ChatHub;
